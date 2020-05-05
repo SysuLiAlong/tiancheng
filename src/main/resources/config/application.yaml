@@ -1,0 +1,47 @@
+server:
+  port: 8080
+spring:
+  profiles:
+    active: local
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    name: dataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    # 配置
+    druid:
+      initial-size: 20
+      min-idle: 20
+      max-active: 100
+      max-wait: 6000
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      validation-query: select 1 from dual
+      test-while-idle: true
+      test-on-borrow: false
+      test-on-return: false
+
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    default-property-inclusion: non_null
+
+#白名单
+api:
+  ignoreApis[0]: /opapis/demo/hello
+  ignoreApis[1]: /opapis/opa/1/portal/login
+  ignoreApis[2]: /opapis/opa/1/portal/user_auth
+
+# mybatis mapper位置
+mapper:
+  identity: MYSQL
+  mappers: tk.mybatis.mapper.common.Mapper
+  notEmpty: false
+mybatis:
+  config-location: classpath:mybatis/mybatis.xml
+  mapper-locations: classpath:mapper/*.xml
+pagehelper:
+  helperDialect: mysql
+  params: count=countSql
+  reasonable: false
+  supportMethodsArguments: true
+

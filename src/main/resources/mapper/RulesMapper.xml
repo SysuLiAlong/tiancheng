@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tiancheng.ms.dao.mapper.RulesMapper">
+    <resultMap id="BaseResultMap" type="com.tiancheng.ms.entity.RulesEntity">
+        <!-- generate by mybatis-generator-zy, don't modify -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <id column="prod_id" property="prodId" jdbcType="INTEGER"/>
+        <id column="proc_id" property="procId" jdbcType="INTEGER"/>
+        <id column="interval" property="interval" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <select id="selectByProductId" resultType="com.tiancheng.ms.entity.RulesEntity">
+        select rules.*, process.name as procName from rules
+        left join process on rules.proc_id = process.id
+        where prod_id = #{productId}
+    </select>
+
+</mapper>

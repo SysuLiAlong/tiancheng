@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tiancheng.ms.dao.mapper.RoleMapper">
+    <resultMap id="BaseResultMap" type="com.tiancheng.ms.entity.RoleEntity">
+        <!-- generate by mybatis-generator-zy, don't modify -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="description" property="description" jdbcType="VARCHAR"/>
+        <result column="enabled" property="enabled" jdbcType="BIT"/>
+
+    </resultMap>
+
+</mapper>

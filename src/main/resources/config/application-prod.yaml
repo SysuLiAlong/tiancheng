@@ -1,0 +1,5 @@
+#spring:
+#  datasource:
+#    url: jdbc:mysql://rs-db-svc:3306/zy_rs?useUnicode=true&characterEncoding=utf-8&allowMultiQueries=true&autoReconnect=true&useSSL=false&serverTimezone=Asia/Shanghai
+#    username: zy_rs
+#    password: pAloGSHmK_qrQkBjW
