@@ -25,12 +25,6 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     default-property-inclusion: non_null
 
-#白名单
-api:
-  ignoreApis[0]: /opapis/demo/hello
-  ignoreApis[1]: /opapis/opa/1/portal/login
-  ignoreApis[2]: /opapis/opa/1/portal/user_auth
-
 # mybatis mapper位置
 mapper:
   identity: MYSQL
