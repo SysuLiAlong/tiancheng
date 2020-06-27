@@ -8,21 +8,21 @@ import java.util.Date;
 
 @Data
 @ToString
-@Table(name = "process")
-public class ProcessEntity {
+@Table(name = "produce_msg")
+public class ProduceMsgEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "name")
-    private String name;
+    @Column(name = "produce_id")
+    private Integer produceId;
 
-    @Column(name = "charge_user_id")
-    private String chargeUserId;
+    @Column(name = "content")
+    private String content;
 
-    @Column(name = "charge_user_name")
-    private String chargeUserName;
+    @Column(name = "file_path")
+    private String filePath;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -36,7 +36,14 @@ public class ProcessEntity {
     @Column(name = "update_by")
     private String updateBy;
 
-    private Integer order;
+    private Integer type;
 
-    private Boolean enabled = true;
+    @Column(name = "operate_user_name")
+    private String operateUserName;
+
+    @Column(name = "process_name")
+    private String processName;
+
+    private Integer amount;
+
 }

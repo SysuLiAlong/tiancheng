@@ -10,4 +10,5 @@ public interface ProcessMapper extends Mapper<ProcessEntity> {
 
     List<ProcessEntity> selectByProductId(@Param("productId") Integer productId);
 
+    List<ProcessEntity> getProduceProcess(@Param("productCode") String productCode);
 }

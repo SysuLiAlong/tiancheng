@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tiancheng.ms.dao.mapper.ProduceMapper">
+    <resultMap id="BaseResultMap" type="com.tiancheng.ms.entity.ProduceEntity">
+        <!-- generate by mybatis-generator-zy, don't modify -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="code" property="code" jdbcType="VARCHAR"/>
+        <result column="order_code" property="orderCode" jdbcType="VARCHAR"/>
+        <result column="produce_code" property="productCode" jdbcType="VARCHAR"/>
+        <result column="stove" property="stove" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.tiancheng.ms.dto.ProduceDetailDTO" extends="BaseResultMap">
+        <result column="process_name" property="produceProcessName" jdbcType="VARCHAR"/>
+        <result column="process_charge_user_name" property="processChargeUserName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <select id="getProduceDetail" resultMap="DetailResultMap">
+        select p1.*,p3.charge_user_name as process_charge_user_name,p3.name as process_name
+        from produce p1
+        left join produce_process p2
+        on p1.id = p2.produce_id
+        left join process p3
+        on p3.id = p2.process_id
+        where p2.status = 1 and p1.id = #{produceId}
+    </select>
+
+</mapper>

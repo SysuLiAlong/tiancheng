@@ -7,15 +7,15 @@ import javax.persistence.*;
 
 @Data
 @ToString
-@Table(name = "prod_material_relation")
-public class ProdMaterialRelationEntity {
+@Table(name = "product_material")
+public class ProductMaterial {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "prod_id")
-    private Integer prodId;
+    @Column(name = "product_id")
+    private Integer productId;
 
     @Column(name = "material_id")
     private Integer materialId;

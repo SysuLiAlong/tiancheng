@@ -60,20 +60,20 @@ public class ProductService {
         productEntity.setCreateTime(new Date());
         productMapper.insertSelective(productEntity);
 
-        if (!CollectionUtils.isEmpty(detailParam.getProcRelationParams())) {
+        if (!CollectionUtils.isEmpty(detailParam.getProductProcessParams())) {
             ProductEntity finalProductEntity = productEntity;
-            detailParam.getProcRelationParams().stream().forEach(entity -> {
-                entity.setProdId(finalProductEntity.getId());
+            detailParam.getProductProcessParams().stream().forEach(entity -> {
+                entity.setProductId(finalProductEntity.getId());
             });
-            prodProcRelatMapper.insertList(detailParam.getProcRelationParams());
+            prodProcRelatMapper.insertList(detailParam.getProductProcessParams());
         }
 
-        if (!CollectionUtils.isEmpty(detailParam.getMaterialRelationParams())) {
+        if (!CollectionUtils.isEmpty(detailParam.getProductMaterialParams())) {
             ProductEntity finalProductEntity1 = productEntity;
-            detailParam.getMaterialRelationParams().stream().forEach(entity -> {
-                entity.setProdId(finalProductEntity1.getId());
+            detailParam.getProductMaterialParams().stream().forEach(entity -> {
+                entity.setProductId(finalProductEntity1.getId());
             });
-            prodMaterialRelatMapper.insertList(detailParam.getMaterialRelationParams());
+            prodMaterialRelatMapper.insertList(detailParam.getProductMaterialParams());
         }
 
         if (!CollectionUtils.isEmpty(detailParam.getRuleParams())) {
@@ -126,13 +126,13 @@ public class ProductService {
         BeanUtils.copyProperties(detailParam.getProductParam(), productEntity);
         productMapper.updateByPrimaryKeySelective(productEntity);
 
-        Example example1 = new Example(ProdProcRelationEntity.class);
+        Example example1 = new Example(ProductProcessEntity.class);
         example1.createCriteria().andEqualTo(ExampleConstant.RELATION_PROD_ID, productEntity.getId());
         List<Integer> existProcIds = prodProcRelatMapper.selectByExample(example1).stream()
-                .map(entity -> entity.getProcId())
+                .map(entity -> entity.getProcessId())
                 .collect(Collectors.toList());
-        List<Integer> addProcIds = detailParam.getProcRelationParams().stream()
-                .map(entity -> entity.getProcId())
+        List<Integer> addProcIds = detailParam.getProductProcessParams().stream()
+                .map(entity -> entity.getProcessId())
                 .collect(Collectors.toList());
         List<Integer> removeProcIds = new ArrayList<>(existProcIds);
         removeProcIds.removeAll(addProcIds);
@@ -141,20 +141,20 @@ public class ProductService {
             prodProcRelatMapper.deleteByIds(StringUtils.arrayToCommaDelimitedString(removeProcIds.toArray()));
         }
         if (!CollectionUtils.isEmpty(addProcIds)) {
-            List<ProdProcRelationEntity> prodProcRelationEntities = addProcIds.stream().map(id -> {
-                return new ProdProcRelationEntity(detailParam.getProductParam().getId(), id);
+            List<ProductProcessEntity> prodProcRelationEntities = addProcIds.stream().map(id -> {
+                return new ProductProcessEntity(detailParam.getProductParam().getId(), id);
             }).collect(Collectors.toList());
             prodProcRelatMapper.insertList(prodProcRelationEntities);
         }
 
-        Example example2 = new Example(ProdMaterialRelationEntity.class);
+        Example example2 = new Example(ProductMaterial.class);
         example2.createCriteria().andEqualTo(ExampleConstant.RELATION_PROD_ID, productEntity.getId());
         prodMaterialRelatMapper.deleteByExample(example2);
-        if (!CollectionUtils.isEmpty(detailParam.getMaterialRelationParams())) {
-            detailParam.getMaterialRelationParams().stream().forEach(entity -> {
-                entity.setProdId(detailParam.getProductParam().getId());
+        if (!CollectionUtils.isEmpty(detailParam.getProductMaterialParams())) {
+            detailParam.getProductMaterialParams().stream().forEach(entity -> {
+                entity.setProductId(detailParam.getProductParam().getId());
             });
-            prodMaterialRelatMapper.insertList(detailParam.getMaterialRelationParams());
+            prodMaterialRelatMapper.insertList(detailParam.getProductMaterialParams());
         }
 
         Example example3 = new Example(RulesEntity.class);

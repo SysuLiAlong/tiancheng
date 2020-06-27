@@ -11,12 +11,23 @@
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
         <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="order" property="order" jdbcType="INTEGER"/>
         <result column="enabled" property="enabled" jdbcType="BIT"/>
 
     </resultMap>
     <select id="selectByProductId" resultMap="BaseResultMap">
         select * from prod_proc_relation r join process p on r.proc_id = p.id
         where r.prod_id = #{productId}
+    </select>
+    <select id="getProduceProcess" resultType="com.tiancheng.ms.entity.ProcessEntity">
+        select p3.*
+        from product p1
+        join product_process p2
+        on p1.id = p2.product_id
+        left join process p3
+        on p3.id = p2.process_id
+        where p1.code = #{productCode}
+        order by p3.order desc
     </select>
 
 </mapper>
