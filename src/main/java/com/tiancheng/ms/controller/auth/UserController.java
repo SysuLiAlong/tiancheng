@@ -2,6 +2,7 @@ package com.tiancheng.ms.controller.auth;
 
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.context.ContextUser;
+import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.dao.mapper.UserMapper;
@@ -89,6 +90,13 @@ public class UserController {
     @PostMapping("/delete/{userId}")
     public void deleteUser(@PathVariable Integer userId) {
         userMapper.deleteByPrimaryKey(userId);
+    }
+
+    @GetMapping("/options")
+    public List<SelectOption> userOptions() {
+        return userMapper.selectAll().stream()
+                .map(entity -> new SelectOption(entity.getId().toString(),entity.getUserName()))
+                .collect(Collectors.toList());
     }
 
 

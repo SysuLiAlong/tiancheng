@@ -19,7 +19,7 @@ public class ProcessEntity {
     private String name;
 
     @Column(name = "charge_user_id")
-    private String chargeUserId;
+    private Integer chargeUserId;
 
     @Column(name = "charge_user_name")
     private String chargeUserName;

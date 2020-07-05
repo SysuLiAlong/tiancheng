@@ -39,17 +39,19 @@ public class ProcessController {
 
     @PostMapping(value = "update")
     public void updateProcess(@RequestBody ProcessParam param) {
-        ProcessEntity entity = processMapper.selectByPrimaryKey(param.getId());
-        if(entity == null) {
-            throw new BusinessException(ErrorCode.FAIL,"修改流程不存在");
-        }
-        boolean isNameExist = processMapper.selectOneByName(param.getName()) == null ? false : true;
+        ProcessEntity entity = processMapper.selectOneByName(param.getName());
+        boolean isNameExist = entity != null && entity.getId() != param.getId();
         if (isNameExist) {
             throw new BusinessException(ErrorCode.FAIL,"流程名称重复！");
+        }
+        entity = processMapper.selectByPrimaryKey(param.getId());
+        if(entity == null) {
+            throw new BusinessException(ErrorCode.FAIL,"修改流程不存在");
         }
         BeanUtils.copyProperties(param,entity);
         entity.setUpdateTime(new Date());
         entity.setUpdateBy(ContextHolder.getUser().getUserName());
+        processMapper.updateByPrimaryKey(entity);
     }
 
     @RequestMapping("/list")
@@ -79,6 +81,11 @@ public class ProcessController {
         secondProcess.setUpdateBy(ContextHolder.getUser().getUserName());
         processMapper.updateByPrimaryKey(firstProcess);
         processMapper.updateByPrimaryKey(secondProcess);
+    }
+
+    @GetMapping("/detail/{processId}")
+    public ProcessEntity processDetail(@PathVariable Integer processId) {
+        return processMapper.selectByPrimaryKey(processId);
     }
 
 
