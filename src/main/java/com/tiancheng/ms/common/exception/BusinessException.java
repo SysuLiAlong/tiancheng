@@ -1,8 +1,10 @@
 package com.tiancheng.ms.common.exception;
 
 import com.tiancheng.ms.constant.ErrorCode;
+import lombok.Data;
 import org.springframework.util.StringUtils;
 
+@Data
 public class BusinessException extends RuntimeException {
     private ErrorCode errorCode;
     private String message;

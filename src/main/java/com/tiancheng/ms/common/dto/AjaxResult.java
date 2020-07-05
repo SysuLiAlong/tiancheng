@@ -1,5 +1,8 @@
 package com.tiancheng.ms.common.dto;
+
+import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
+import org.springframework.util.StringUtils;
 
 public class AjaxResult<T> {
     private int code;
@@ -45,6 +48,16 @@ public class AjaxResult<T> {
         return ajaxResult;
     }
 
+    public static <T> AjaxResult fail(BusinessException ex) {
+        AjaxResult<T> ajaxResult = new AjaxResult<>();
+        ajaxResult.setCode(ex.getErrorCode().getCode());
+        if (StringUtils.isEmpty(ex.getMessage())) {
+            ajaxResult.setMsg(ex.getErrorCode().getMsg());
+        } else {
+            ajaxResult.setMsg(ex.getMessage());
+        }
+        return ajaxResult;
+    }
 
     public static <T> AjaxResult notAuth() {
         AjaxResult<T> ajaxResult = new AjaxResult<>();

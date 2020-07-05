@@ -11,13 +11,14 @@
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
         <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
-        <result column="order" property="order" jdbcType="INTEGER"/>
+        <result column="priority" property="priority" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
         <result column="enabled" property="enabled" jdbcType="BIT"/>
 
     </resultMap>
     <select id="selectByProductId" resultMap="BaseResultMap">
-        select * from prod_proc_relation r join process p on r.proc_id = p.id
-        where r.prod_id = #{productId}
+        select * from product_process r left join process p on r.process_id = p.id
+        where r.product_id = #{productId} and p.type = 1 order by priority
     </select>
     <select id="getProduceProcess" resultType="com.tiancheng.ms.entity.ProcessEntity">
         select p3.*
@@ -27,7 +28,7 @@
         left join process p3
         on p3.id = p2.process_id
         where p1.code = #{productCode}
-        order by p3.order desc
+        order by p3.priority desc
     </select>
 
 </mapper>

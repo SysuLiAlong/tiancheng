@@ -18,12 +18,10 @@ public class ProduceProcessEntity {
     @Column(name = "produce_id")
     private Integer produceId;
 
-    @Column(name = "product_id")
-    private Integer productId;
-
     @Column(name = "process_id")
     private Integer processId;
 
+    @Column(name = "status")
     private Integer status;
 
     @Column(name = "start_time")
@@ -43,4 +41,7 @@ public class ProduceProcessEntity {
 
     @Column(name = "process_name")
     private String processName;
+
+    @Column(name = "next_process")
+    private Integer nextProcess;
 }

@@ -24,7 +24,7 @@ public class ProduceMsgEntity {
     @Column(name = "file_path")
     private String filePath;
 
-    @Column(name = "create_time")
+    @Column(name = "create_time",updatable = false)
     private Date createTime;
 
     @Column(name = "update_time")

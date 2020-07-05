@@ -12,3 +12,11 @@ logging:
   file:
     path: target/logging
 
+process:
+  startId: 5
+  startName: 开始
+  endId: 3
+  endName: 结束
+  userName: admin
+  realName: 管理员
+

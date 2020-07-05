@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.dto.PageRequestWrapper;
+import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.ExampleConstant;
@@ -34,9 +35,9 @@ public class ProductService {
     @Autowired
     private ProductMapper productMapper;
     @Autowired
-    private ProdProcRelatMapper prodProcRelatMapper;
+    private ProductProcessMapper productProcessMapper;
     @Autowired
-    private ProdMaterialRelatMapper prodMaterialRelatMapper;
+    private ProductMaterialMapper productMaterialMapper;
     @Autowired
     private RulesMapper rulesMapper;
     @Autowired
@@ -60,26 +61,26 @@ public class ProductService {
         productEntity.setCreateTime(new Date());
         productMapper.insertSelective(productEntity);
 
-        if (!CollectionUtils.isEmpty(detailParam.getProductProcessParams())) {
+        if (!CollectionUtils.isEmpty(detailParam.getProcessParams())) {
             ProductEntity finalProductEntity = productEntity;
-            detailParam.getProductProcessParams().stream().forEach(entity -> {
+            detailParam.getProcessParams().stream().forEach(entity -> {
                 entity.setProductId(finalProductEntity.getId());
             });
-            prodProcRelatMapper.insertList(detailParam.getProductProcessParams());
+            productProcessMapper.insertList(detailParam.getProcessParams());
         }
 
-        if (!CollectionUtils.isEmpty(detailParam.getProductMaterialParams())) {
+        if (!CollectionUtils.isEmpty(detailParam.getMaterialParams())) {
             ProductEntity finalProductEntity1 = productEntity;
-            detailParam.getProductMaterialParams().stream().forEach(entity -> {
+            detailParam.getMaterialParams().stream().forEach(entity -> {
                 entity.setProductId(finalProductEntity1.getId());
             });
-            prodMaterialRelatMapper.insertList(detailParam.getProductMaterialParams());
+            productMaterialMapper.insertList(detailParam.getMaterialParams());
         }
 
         if (!CollectionUtils.isEmpty(detailParam.getRuleParams())) {
             ProductEntity finalProductEntity2 = productEntity;
             detailParam.getRuleParams().stream().forEach(entity -> {
-                entity.setProdId(finalProductEntity2.getId());
+                entity.setProductId(finalProductEntity2.getId());
             });
             rulesMapper.insertList(detailParam.getRuleParams());
         }
@@ -112,10 +113,7 @@ public class ProductService {
 
     @Transactional(rollbackFor = Exception.class)
     public void updateProduct(ProductDetailParam detailParam) {
-        Example example = new Example(ProductEntity.class);
-        Example.Criteria criteria = example.createCriteria()
-                .andEqualTo(ExampleConstant.PRODUCT_CODE,detailParam.getProductParam().getCode());
-        ProductEntity productEntity = productMapper.selectOneByExample(example);
+        ProductEntity productEntity = productMapper.selectOneByCode(detailParam.getProductParam().getCode());
         if (productEntity != null && productEntity.getId() != detailParam.getProductParam().getId()) {
             throw new BusinessException(ErrorCode.FAIL, "产品编码重复");
         }
@@ -126,43 +124,37 @@ public class ProductService {
         BeanUtils.copyProperties(detailParam.getProductParam(), productEntity);
         productMapper.updateByPrimaryKeySelective(productEntity);
 
-        Example example1 = new Example(ProductProcessEntity.class);
-        example1.createCriteria().andEqualTo(ExampleConstant.RELATION_PROD_ID, productEntity.getId());
-        List<Integer> existProcIds = prodProcRelatMapper.selectByExample(example1).stream()
+        List<Integer> existProcIds = productProcessMapper.selectProcessByProductId(detailParam.getProductParam().getId()).stream()
                 .map(entity -> entity.getProcessId())
                 .collect(Collectors.toList());
-        List<Integer> addProcIds = detailParam.getProductProcessParams().stream()
+        List<Integer> addProcIds = detailParam.getProcessParams().stream()
                 .map(entity -> entity.getProcessId())
                 .collect(Collectors.toList());
         List<Integer> removeProcIds = new ArrayList<>(existProcIds);
         removeProcIds.removeAll(addProcIds);
         addProcIds.removeAll(existProcIds);
         if (!CollectionUtils.isEmpty(removeProcIds)) {
-            prodProcRelatMapper.deleteByIds(StringUtils.arrayToCommaDelimitedString(removeProcIds.toArray()));
+            productProcessMapper.deleteByIds(StringUtils.arrayToCommaDelimitedString(removeProcIds.toArray()));
         }
         if (!CollectionUtils.isEmpty(addProcIds)) {
             List<ProductProcessEntity> prodProcRelationEntities = addProcIds.stream().map(id -> {
                 return new ProductProcessEntity(detailParam.getProductParam().getId(), id);
             }).collect(Collectors.toList());
-            prodProcRelatMapper.insertList(prodProcRelationEntities);
+            productProcessMapper.insertList(prodProcRelationEntities);
         }
 
-        Example example2 = new Example(ProductMaterial.class);
-        example2.createCriteria().andEqualTo(ExampleConstant.RELATION_PROD_ID, productEntity.getId());
-        prodMaterialRelatMapper.deleteByExample(example2);
-        if (!CollectionUtils.isEmpty(detailParam.getProductMaterialParams())) {
-            detailParam.getProductMaterialParams().stream().forEach(entity -> {
+        productMaterialMapper.deleteByProductId(detailParam.getProductParam().getId());
+        if (!CollectionUtils.isEmpty(detailParam.getMaterialParams())) {
+            detailParam.getMaterialParams().stream().forEach(entity -> {
                 entity.setProductId(detailParam.getProductParam().getId());
             });
-            prodMaterialRelatMapper.insertList(detailParam.getProductMaterialParams());
+            productMaterialMapper.insertList(detailParam.getMaterialParams());
         }
 
-        Example example3 = new Example(RulesEntity.class);
-        example3.createCriteria().andEqualTo(ExampleConstant.RELATION_PROD_ID, productEntity.getId());
-        rulesMapper.deleteByExample(example3);
+        rulesMapper.deleteByProductId(detailParam.getProductParam().getId());
         if (!CollectionUtils.isEmpty(detailParam.getRuleParams())) {
             detailParam.getRuleParams().stream().forEach(entity -> {
-                entity.setProdId(detailParam.getProductParam().getId());
+                entity.setProductId(detailParam.getProductParam().getId());
             });
             rulesMapper.insertList(detailParam.getRuleParams());
         }
@@ -174,5 +166,11 @@ public class ProductService {
         }
         productMapper.deleteByPrimaryKey(productId);
         // TODO: 2020/5/4 删除relation表内容
+    }
+
+    public List<SelectOption> optionList() {
+        return productMapper.selectAll().stream()
+                .map(productEntity -> new SelectOption(productEntity.getCode(),productEntity.getName()))
+                .collect(Collectors.toList());
     }
 }

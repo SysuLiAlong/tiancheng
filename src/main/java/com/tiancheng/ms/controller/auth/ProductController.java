@@ -2,6 +2,7 @@ package com.tiancheng.ms.controller.auth;
 
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.dto.PageRequestWrapper;
+import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.dto.ProductDetailDTO;
 import com.tiancheng.ms.dto.param.ProductDetailParam;
 import com.tiancheng.ms.dto.param.ProductQueryParam;
@@ -9,6 +10,8 @@ import com.tiancheng.ms.entity.ProductEntity;
 import com.tiancheng.ms.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/product")
@@ -40,5 +43,10 @@ public class ProductController {
     @PostMapping("/delete/{productId}")
     public void deleteProduct(@PathVariable Integer productId) {
         productService.deleteProduct(productId);
+    }
+
+    @GetMapping("/options")
+    public List<SelectOption> optionList() {
+        return productService.optionList();
     }
 }

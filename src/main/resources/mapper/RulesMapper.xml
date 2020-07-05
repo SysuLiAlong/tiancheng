@@ -4,15 +4,15 @@
     <resultMap id="BaseResultMap" type="com.tiancheng.ms.entity.RulesEntity">
         <!-- generate by mybatis-generator-zy, don't modify -->
         <id column="id" property="id" jdbcType="INTEGER"/>
-        <id column="prod_id" property="prodId" jdbcType="INTEGER"/>
-        <id column="proc_id" property="procId" jdbcType="INTEGER"/>
-        <id column="interval" property="interval" jdbcType="INTEGER"/>
+        <id column="product_id" property="productId" jdbcType="INTEGER"/>
+        <id column="process_id" property="processId" jdbcType="INTEGER"/>
+        <id column="intervasl" property="intervals" jdbcType="INTEGER"/>
     </resultMap>
 
-    <select id="selectByProductId" resultType="com.tiancheng.ms.entity.RulesEntity">
+    <select id="selectByProductId" resultType="com.tiancheng.ms.dto.RulesDTO">
         select rules.*, process.name as procName from rules
-        left join process on rules.proc_id = process.id
-        where prod_id = #{productId}
+        left join process on rules.process_id = process.id
+        where product_id = #{productId}
     </select>
 
 </mapper>

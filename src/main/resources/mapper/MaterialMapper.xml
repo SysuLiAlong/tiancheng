@@ -14,9 +14,9 @@
 
     </resultMap>
     <select id="selectByProductId" resultMap="BaseResultMap">
-        select * from prod_material_relation r
-        join material m on r.material_id = m.id
-        where r.prod_id = #{productId}
+        select m.* from product_material p
+        left join material m on p.material_id = m.id
+        where p.product_id = #{productId}
     </select>
 
 </mapper>

@@ -5,6 +5,7 @@ import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.context.ContextUser;
 import com.tiancheng.ms.common.dto.AjaxResult;
 import com.tiancheng.ms.common.exception.BusinessException;
+import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.GlobalConstant;
 import com.tiancheng.ms.service.UserService;
 import com.tiancheng.ms.util.CookieUtil;
@@ -52,16 +53,13 @@ public class ApiAspect {
             if (!isWhiteApi(uri)) {
                 String token = getAccessToken(req);
                 if (StringUtils.isEmpty(token)) {
-                    ResponseUtil.write(resp, JSONObject.toJSONString(AjaxResult.notAuth()));
-                    return null;
+                    throw new BusinessException(ErrorCode.FAIL_AUTH);
                 } else {
-                    ContextUser user = userService.getUserByToken(token).convertToContextUser();
+                    ContextUser user = userService.getUserByToken(token);
                     if (user == null) {
-                        ResponseUtil.write(resp, JSONObject.toJSONString(AjaxResult.notAuth()));
-                        return null;
-                    } else {
-                        ContextHolder.setUser(user);
+                        throw new BusinessException(ErrorCode.FAIL_AUTH);
                     }
+                    ContextHolder.setUser(user);
                 }
             }
             Object result = pjp.proceed();
@@ -73,7 +71,7 @@ public class ApiAspect {
         } catch (Exception ex) {
             log.error("接口执行异常：方法:" + pjp.getSignature() + ",参数:" + JSONObject.toJSONString(pjp.getArgs()), ex);
             if (ex instanceof BusinessException) {
-                ResponseUtil.write(resp, JSONObject.toJSONString(AjaxResult.fail(ex.getMessage())));
+                ResponseUtil.write(resp, JSONObject.toJSONString(AjaxResult.fail((BusinessException)ex)));
             } else if (ex instanceof IllegalArgumentException) {
                 ResponseUtil.write(resp, JSONObject.toJSONString(AjaxResult.fail(ex.getMessage())));
             } else {

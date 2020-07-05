@@ -36,7 +36,10 @@ public class ProcessEntity {
     @Column(name = "update_by")
     private String updateBy;
 
-    private Integer order;
+    private Integer priority;
 
     private Boolean enabled = true;
+
+    @Column(updatable = false)
+    private Integer type = 1;
 }

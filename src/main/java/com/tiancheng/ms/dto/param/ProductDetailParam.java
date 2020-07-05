@@ -12,9 +12,9 @@ public class ProductDetailParam {
 
     private ProductParam productParam;
 
-    private List<ProductProcessEntity> productProcessParams;
+    private List<ProductProcessEntity> processParams;
 
-    private List<ProductMaterial> productMaterialParams;
+    private List<ProductMaterial> materialParams;
 
     private List<RulesEntity> ruleParams;
 }

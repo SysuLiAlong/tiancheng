@@ -6,9 +6,14 @@ import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import tk.mybatis.mapper.common.Mapper;
 
+import java.util.List;
+
 public interface ProduceMapper extends Mapper<ProduceEntity> {
-    @Select("select produce_code from produce order by create_time desc limit 1")
+    @Select("select code from produce order by create_time desc limit 1")
     String getLastProduce();
 
     ProduceDetailDTO getProduceDetail(@Param("produceId") Integer produceId);
+
+    List<ProduceDetailDTO> pageQryProduceDetail(@Param("orderCode")String orderCode,
+                                                @Param("orderParam") String orderParam,@Param("chargeUserName") String chargeUserName);
 }

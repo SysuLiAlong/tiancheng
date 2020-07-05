@@ -10,19 +10,7 @@ public class ContextUser implements Serializable {
     private Integer id;
     private String userName;
     private String realName;
-    private String phone;
+    private String role;
     @JsonIgnore
     private String password;
-
-    public ContextUser(){
-
-    }
-
-    public ContextUser(Integer id, String userName, String realName, String password, String phone) {
-        this.id = id;
-        this.userName = userName;
-        this.realName = realName;
-        this.password = password;
-        this.phone = phone;
-    }
 }

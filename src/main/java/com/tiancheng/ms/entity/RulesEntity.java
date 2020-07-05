@@ -13,14 +13,11 @@ public class RulesEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "prod_id")
-    private Integer prodId;
+    @Column(name = "product_id")
+    private Integer productId;
 
-    @Column(name = "proc_id")
-    private Integer procId;
-
-    @Transient
-    private String procName;
+    @Column(name = "process_id")
+    private Integer processId;
 
     private Integer intervals;
 }

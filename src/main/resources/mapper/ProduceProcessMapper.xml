@@ -5,7 +5,6 @@
         <!-- generate by mybatis-generator-zy, don't modify -->
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="produce_id" property="produceId" jdbcType="INTEGER"/>
-        <result column="product_id" property="productId" jdbcType="INTEGER"/>
         <result column="process_id" property="processId" jdbcType="INTEGER"/>
         <result column="status" property="status" jdbcType="INTEGER"/>
         <result column="start_time" property="startTime" jdbcType="TIMESTAMP"/>
@@ -17,15 +16,16 @@
 
     </resultMap>
     <select id="listProduceProcess" resultType="com.tiancheng.ms.dto.ProduceProcessDTO">
-        select p3.charge_user_name as chargeUserName, p3.name as processName, p4.*
-        from produce p1
-        join product_process p2
-        on p1.product_id = p2.product_id
-        left join process p3
-        on p3.id = p2.process_id
-        left join produce_process p4
-        on p4.process_id = p3.id
-        where p1.id = #{produceId}
+        select p1.*,p2.name as processName,p2.charge_user_name as chargeUserName from produce_process p1
+        left join process p2 on p1.process_id = p2.id
+        where p1.produce_id = #{produceId} and p2.type = 1 order by p2.priority
+    </select>
+    <select id="getNextProcess" resultMap="BaseResultMap">
+        select p2.* from
+        produce_process p1
+        join produce_process p2
+        on p1.next_process = p2.process_id
+        where p1.id = #{produceProcessId}
     </select>
 
 

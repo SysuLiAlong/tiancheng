@@ -12,3 +12,19 @@ logging:
   file:
     path: target/logging
 
+process:
+  startId: 5
+  startName: 开始
+  endId: 3
+  endName: 结束
+  userName: admin
+  realName: 管理员
+
+role:
+  superAdmin: SUPER_ADMIN
+  superAdminName: 超级管理员
+  admin: ADMIN
+  adminName: 系统管理员
+  commonUser: COMMON_USER
+  commonUserName: 普通用户
+

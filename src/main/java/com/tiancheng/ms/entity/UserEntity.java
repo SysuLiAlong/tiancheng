@@ -1,5 +1,6 @@
 package com.tiancheng.ms.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 import lombok.ToString;
 
@@ -21,9 +22,8 @@ public class UserEntity {
     @Column(name = "real_name")
     private String realName;
 
+    @JsonIgnore
     private String password;
-
-    private String phone;
 
     private String token;
 
@@ -39,5 +39,9 @@ public class UserEntity {
     @Column(name = "update_by")
     private String updateBy;
 
-    private Boolean enabled;
+    @Column(name = "role")
+    private String role;
+
+    @Column(name = "role_name")
+    private String roleName;
 }
