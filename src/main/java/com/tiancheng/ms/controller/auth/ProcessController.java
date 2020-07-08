@@ -3,7 +3,10 @@ package com.tiancheng.ms.controller.auth;
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
+import com.tiancheng.ms.constant.ProduceProcessConstant;
 import com.tiancheng.ms.dao.mapper.ProcessMapper;
+import com.tiancheng.ms.dao.mapper.ProduceProcessMapper;
+import com.tiancheng.ms.dto.ProduceProcessDTO;
 import com.tiancheng.ms.dto.param.ProcessParam;
 import com.tiancheng.ms.entity.ProcessEntity;
 import org.springframework.beans.BeanUtils;
@@ -19,6 +22,12 @@ public class ProcessController {
 
     @Autowired
     private ProcessMapper processMapper;
+
+    @Autowired
+    private ProduceProcessMapper produceProcessMapper;
+
+    @Autowired
+    private ProduceProcessConstant produceProcessConstant;
 
     @RequestMapping(value = "/add")
     public synchronized void addProcess(@RequestBody ProcessParam param) {
@@ -70,6 +79,30 @@ public class ProcessController {
 
     @RequestMapping("/exchange/priority")
     public void exchangePriority(@RequestParam(name = "first") Integer first, @RequestParam(name = "second") Integer second) {
+
+        List<ProduceProcessDTO> firstProduceProcess = produceProcessMapper.selectUnOverProduceContainProcessId(first,produceProcessConstant.getEndId());
+        if (firstProduceProcess.size() > 0) {
+            StringBuilder produceIds = new StringBuilder();
+            firstProduceProcess.stream().forEach(item -> {
+                produceIds.append(item.getProduceCode());
+                produceIds.append(",");
+            });
+            String producemsg = produceIds.toString().substring(1,produceIds.length() - 1);
+            ProcessEntity processEntity = processMapper.selectByPrimaryKey(first);
+            throw new BusinessException(ErrorCode.FAIL,"流程" + processEntity.getName() + "已经在生产计划" + producemsg + "中使用，请等待生产计划关闭后再调整优先级！");
+        }
+        List<ProduceProcessDTO> secondProduceProcess = produceProcessMapper.selectUnOverProduceContainProcessId(second,produceProcessConstant.getEndId());
+        if (secondProduceProcess.size() > 0) {
+            StringBuilder produceIds = new StringBuilder();
+            secondProduceProcess.stream().forEach(item -> {
+                produceIds.append(item.getProduceCode());
+                produceIds.append(",");
+            });
+            String producemsg = produceIds.toString().substring(0,produceIds.length() - 1);
+            ProcessEntity processEntity = processMapper.selectByPrimaryKey(second);
+            throw new BusinessException(ErrorCode.FAIL,"流程" + processEntity.getName() + "已经在生产计划" + producemsg + "中使用，请等待生产计划关闭后再调整优先级！");
+        }
+
         ProcessEntity firstProcess = processMapper.selectByPrimaryKey(first);
         ProcessEntity secondProcess = processMapper.selectByPrimaryKey(second);
         Integer tempPriority = firstProcess.getPriority();
@@ -81,12 +114,12 @@ public class ProcessController {
         secondProcess.setUpdateBy(ContextHolder.getUser().getUserName());
         processMapper.updateByPrimaryKey(firstProcess);
         processMapper.updateByPrimaryKey(secondProcess);
+
     }
 
     @GetMapping("/detail/{processId}")
     public ProcessEntity processDetail(@PathVariable Integer processId) {
         return processMapper.selectByPrimaryKey(processId);
     }
-
 
 }

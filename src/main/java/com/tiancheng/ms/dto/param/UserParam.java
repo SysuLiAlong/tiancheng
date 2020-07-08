@@ -15,4 +15,6 @@ public class UserParam {
     private String roleName;
 
     private String password;
+
+    private Boolean remember;
 }

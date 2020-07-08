@@ -5,17 +5,20 @@ import com.tiancheng.ms.common.context.ContextUser;
 import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
+import com.tiancheng.ms.constant.GlobalConstant;
 import com.tiancheng.ms.dao.mapper.UserMapper;
 import com.tiancheng.ms.dto.UserDTO;
 import com.tiancheng.ms.dto.param.ChangePasswdParam;
 import com.tiancheng.ms.dto.param.UserParam;
 import com.tiancheng.ms.entity.UserEntity;
 import com.tiancheng.ms.service.UserService;
+import com.tiancheng.ms.util.CookieUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -97,6 +100,13 @@ public class UserController {
         return userMapper.selectAll().stream()
                 .map(entity -> new SelectOption(entity.getId().toString(),entity.getUserName()))
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        CookieUtil.setCookieValue(response, GlobalConstant.TOKEN, "", 0);
+        CookieUtil.setCookieValue(response, GlobalConstant.USER_NAME, "", 0);
+        CookieUtil.setCookieValue(response, GlobalConstant.PASS_WORD, "", 0);
     }
 
 

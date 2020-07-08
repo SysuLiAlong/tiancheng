@@ -6,6 +6,7 @@ import com.tiancheng.ms.entity.ProduceProcessEntity;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import tk.mybatis.mapper.common.Mapper;
 import tk.mybatis.mapper.common.MySqlMapper;
 
@@ -29,4 +30,9 @@ public interface ProduceProcessMapper extends Mapper<ProduceProcessEntity> , MyS
 
     @Select("select * from produce_process where produce_id = #{produceId} and next_process = #{currentProcessId}")
     ProduceProcessEntity getLastProcess(@Param("produceId") Integer produceId,@Param("currentProcessId") Integer currentProcessId);
+
+    @Update("update produce_process set next_process = #{newProcessId} where next_process = #{oldProcessId}")
+    void changeNextProcess(@Param("oldProcessId") Integer first,@Param("newProcessId") Integer second);
+
+    List<ProduceProcessDTO> selectUnOverProduceContainProcessId(@Param("processId") Integer processId,@Param("endProcessId") Integer endProcesssId);
 }

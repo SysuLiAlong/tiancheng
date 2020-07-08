@@ -9,4 +9,6 @@ public class ProduceProcessDTO extends ProduceProcessEntity {
     private String ChargeUserName;
 
     private String processName;
+
+    private String produceCode;
 }

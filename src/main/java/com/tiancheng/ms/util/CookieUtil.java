@@ -54,9 +54,9 @@ public class CookieUtil {
      * @param name
      * @param value
      */
-    public static void setCookieValue(HttpServletResponse response, String name, String value) {
+    public static void setCookieValue(HttpServletResponse response, String name, String value, Integer minute) {
         Cookie cookie = new Cookie(name, value);
-        cookie.setMaxAge(2 * 60 *60);
+        cookie.setMaxAge(3600 * minute);
         cookie.setPath("/");
         response.addCookie(cookie);
     }

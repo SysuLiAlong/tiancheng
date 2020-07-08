@@ -42,7 +42,14 @@ public class AuthController {
             String newToken = UUID.randomUUID().toString();
             userService.updateToken(user.getUserName(),newToken);
             BeanUtils.copyProperties(userEntity,userDTO);
-            CookieUtil.setCookieValue(response, GlobalConstant.TOKEN, newToken);
+            CookieUtil.setCookieValue(response, GlobalConstant.TOKEN, newToken, 2 * 60);
+            if (user.getRemember()) {
+                CookieUtil.setCookieValue(response, GlobalConstant.USER_NAME, user.getUserName(), 30 * 24 * 60);
+                CookieUtil.setCookieValue(response, GlobalConstant.PASS_WORD, user.getPassword(), 30 * 24 * 60);
+            } else {
+                CookieUtil.setCookieValue(response, GlobalConstant.USER_NAME, user.getUserName(), 0);
+                CookieUtil.setCookieValue(response, GlobalConstant.PASS_WORD, user.getUserName(), 0);
+            }
             return AjaxResult.success(userDTO);
         }
     }

@@ -27,6 +27,14 @@
         on p1.next_process = p2.process_id
         where p1.id = #{produceProcessId}
     </select>
+    <select id="selectUnOverProduceContainProcessId" resultType="com.tiancheng.ms.dto.ProduceProcessDTO">
+       select p1.*,p3.code as produceCode
+        from produce_process p1
+        left join produce p3 on p3.id = p1.produce_id
+         where p1.produce_id in
+            (select p2.produce_id from produce_process p2 where p2.process_id = #{processId})
+        and p1.process_id = #{endProcessId} and p1.status is null
+    </select>
 
 
 </mapper>

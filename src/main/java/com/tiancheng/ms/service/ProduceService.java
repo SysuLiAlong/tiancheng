@@ -119,6 +119,7 @@ public class ProduceService {
             produceMsgEntity.setContent(produceParam.getContent());
             produceMsgEntity.setCreateTime(new Date());
             produceMsgEntity.setCreateBy(ContextHolder.getUser().getUserName());
+            produceMsgEntity.setType(1);
             produceMsgMapper.insert(produceMsgEntity);
         }
     }
@@ -135,28 +136,40 @@ public class ProduceService {
     public List<ProduceMsgEntity> listProduceMsg(Integer produceId) {
         List<ProduceMsgEntity> entities =  produceMsgMapper.listProduceMsg(produceId);
         entities.stream().forEach(entity -> {
+            String processName = StringUtils.isEmpty(entity.getProcessName()) ? "" : entity.getProcessName() ;
+            String createBy = StringUtils.isEmpty(entity.getCreateBy()) ? "" : entity.getCreateBy();
+            String content = StringUtils.isEmpty(entity.getContent()) ? "" : entity.getContent();
+            String amount = entity.getAmount() == null ? "" : String.valueOf(entity.getAmount());
             switch (entity.getType()){
                 case 1: {
                     entity.setContent(MessageConstant.CUSTOM_MESSAGE
-                            .replace("{username}",ContextHolder.getUser().getUserName())
-                            .replace("{content}",entity.getContent())
+                            .replace("{username}",createBy)
+                            .replace("{process}",processName)
+                            .replace("{content}",content)
                     );
                     break;
                 }
                 case 2: {
                     entity.setContent(MessageConstant.ACCEPT_MESSAGE
-                            .replace("{username}",ContextHolder.getUser().getUserName())
-                            .replace("{amount}",String.valueOf(entity.getAmount()))
+                            .replace("{username}",createBy)
+                            .replace("{process}",processName)
+                            .replace("{amount}",amount)
+                    );
+                    break;
+                }
+                case 4: {
+                    entity.setContent(MessageConstant.TRANSMIT_MESSAGE
+                            .replace("{username}",createBy)
+                            .replace("{process}",processName)
+                            .replace("{amount}",amount)
                     );
                     break;
                 }
                 case 3: {
-                    entity.setContent(MessageConstant.TRANSMIT_MESSAGE
-                            .replace("{username}",ContextHolder.getUser().getUserName())
-                            .replace("{process}",entity.getProcessName())
-                            .replace("{amount}",String.valueOf(entity.getAmount()))
+                    entity.setContent(MessageConstant.REJECT_MESSAGE
+                            .replace("{username}",createBy)
+                            .replace("{process}",processName)
                     );
-                    break;
                 }
                 default: entity.setContent("消息异常");
             }
