@@ -1,6 +1,8 @@
 package com.tiancheng.ms.controller.auth;
 
+import com.tiancheng.ms.common.aop.DeleteType;
 import com.tiancheng.ms.common.dto.Page;
+import com.tiancheng.ms.common.enums.DeleteTypeEnum;
 import com.tiancheng.ms.dto.ProduceDetailDTO;
 import com.tiancheng.ms.dto.ProduceProcessDTO;
 import com.tiancheng.ms.dto.param.ProduceParam;
@@ -81,8 +83,9 @@ public class ProduceController {
         return produceService.getNextProcess(produceId);
     }
 
-    @PostMapping("/delete/{produceId}")
-    public void deleteProduce(@PathVariable Integer produceId) {
-        produceService.deleteProduce(produceId);
+    @DeleteType(value = DeleteTypeEnum.PRODUCE, id = "id")
+    @PostMapping("/delete/{id}")
+    public void deleteProduce(@PathVariable Integer id) {
+        produceService.deleteProduce(id);
     }
 }

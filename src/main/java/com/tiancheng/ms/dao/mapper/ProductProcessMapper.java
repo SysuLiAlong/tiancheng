@@ -15,4 +15,7 @@ public interface ProductProcessMapper extends Mapper<ProductProcessEntity>,
 
     @Select("select * from product_process where product_id = #{productId}")
     List<ProductProcessEntity> selectProcessByProductId(@Param("productId") Integer productId);
+
+    @Select("select * from product_process where process_id = #{processId}")
+    List<ProductProcessEntity> selectByProcessId(@Param("processId") Integer processId);
 }

@@ -35,4 +35,10 @@ public interface ProduceProcessMapper extends Mapper<ProduceProcessEntity> , MyS
     void changeNextProcess(@Param("oldProcessId") Integer first,@Param("newProcessId") Integer second);
 
     List<ProduceProcessDTO> selectUnOverProduceContainProcessId(@Param("processId") Integer processId,@Param("endProcessId") Integer endProcesssId);
+
+    @Select("select * from produce_process where produce_id = #{produceId} and process_Id = #{endProcessId}")
+    ProduceProcessEntity selectEndProduceProcess(@Param("produceId") Integer produceId,@Param("endProcessId") Integer endProcessId);
+
+    @Select("select * from produce_process where produce_id = #{produceId} and process_id = #{startProcessId}")
+    ProduceProcessEntity selectStartProduceProcess(@Param("produceId") Integer produceId,@Param("startProcessId") Integer startProcessId);
 }

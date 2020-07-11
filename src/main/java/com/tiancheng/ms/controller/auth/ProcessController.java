@@ -1,6 +1,8 @@
 package com.tiancheng.ms.controller.auth;
 
+import com.tiancheng.ms.common.aop.DeleteType;
 import com.tiancheng.ms.common.context.ContextHolder;
+import com.tiancheng.ms.common.enums.DeleteTypeEnum;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.ProduceProcessConstant;
@@ -68,6 +70,7 @@ public class ProcessController {
         return processMapper.listPriorityProcess();
     }
 
+    @DeleteType(value = DeleteTypeEnum.PROCESS, id = "id")
     @RequestMapping("/delete/{id}")
     public void deleteProcess(@PathVariable(value = "id") Integer id) {
         ProcessEntity entity = processMapper.selectByPrimaryKey(id);

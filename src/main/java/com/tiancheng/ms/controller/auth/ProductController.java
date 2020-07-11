@@ -1,8 +1,10 @@
 package com.tiancheng.ms.controller.auth;
 
+import com.tiancheng.ms.common.aop.DeleteType;
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.dto.PageRequestWrapper;
 import com.tiancheng.ms.common.dto.SelectOption;
+import com.tiancheng.ms.common.enums.DeleteTypeEnum;
 import com.tiancheng.ms.dto.ProductDetailDTO;
 import com.tiancheng.ms.dto.param.ProductDetailParam;
 import com.tiancheng.ms.dto.param.ProductQueryParam;
@@ -40,9 +42,10 @@ public class ProductController {
         return productService.detail(productId);
     }
 
-    @PostMapping("/delete/{productId}")
-    public void deleteProduct(@PathVariable Integer productId) {
-        productService.deleteProduct(productId);
+    @DeleteType(value = DeleteTypeEnum.PRODUCT, id = "id")
+    @PostMapping("/delete/{id}")
+    public void deleteProduct(@PathVariable Integer id) {
+        productService.deleteProduct(id);
     }
 
     @GetMapping("/options")

@@ -16,7 +16,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
+import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -27,7 +28,8 @@ import javax.servlet.http.HttpServletResponse;
 
 @Aspect
 @Slf4j
-@Configuration
+@Component
+@Order(1)
 public class ApiAspect {
 
     @Autowired

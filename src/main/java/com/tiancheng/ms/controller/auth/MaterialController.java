@@ -2,9 +2,11 @@ package com.tiancheng.ms.controller.auth;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.tiancheng.ms.common.aop.DeleteType;
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.dto.SelectOption;
+import com.tiancheng.ms.common.enums.DeleteTypeEnum;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.ExampleConstant;
@@ -94,6 +96,7 @@ public class MaterialController {
         return materialMapper.selectByExample(example);
     }
 
+    @DeleteType(value = DeleteTypeEnum.MATERIAL, id = "id")
     @PostMapping("/delete/{id}")
     public void deleteMaterial(@PathVariable Integer id) {
         materialMapper.deleteByPrimaryKey(id);

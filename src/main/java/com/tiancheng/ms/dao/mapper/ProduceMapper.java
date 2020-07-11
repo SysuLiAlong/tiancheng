@@ -16,4 +16,7 @@ public interface ProduceMapper extends Mapper<ProduceEntity> {
 
     List<ProduceDetailDTO> pageQryProduceDetail(@Param("orderCode")String orderCode,
                                                 @Param("orderParam") String orderParam,@Param("chargeUserName") String chargeUserName);
+
+    @Select("select p1.* from produce p1 left join product p2 on p1.product_code = p2.code where p2.id = #{productId}")
+    List<ProduceEntity> selectByProductId(@Param("productId") Integer productId);
 }
