@@ -11,5 +11,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.PARAMETER})
 public @interface DeleteType {
     DeleteTypeEnum value();
-    String id() default "";
+    String id() default "id";
 }
