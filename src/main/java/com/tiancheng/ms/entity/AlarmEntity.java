@@ -8,29 +8,24 @@ import java.util.Date;
 
 @Data
 @ToString
-@Table(name = "product")
-public class ProductEntity {
-
+@Table(name = "alarm")
+public class AlarmEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String code;
+    @Column(name = "produce_id")
+    private Integer produceId;
 
-    private String name;
+    @Column(name = "process_id")
+    private Integer processId;
 
-    @Column(name = "prd_nums")
-    private Integer prdNums;
+    @Column(name = "product_id")
+    private Integer productId;
 
-    @Column(name = "alert_nums")
-    private Integer alertNums;
+    private Integer type;
 
-    private Double weight;
-
-    @Column(name = "image_code")
-    private String imageCode;
-
-    private String description;
+    private Boolean resolved;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -38,10 +33,6 @@ public class ProductEntity {
     @Column(name = "update_time")
     private Date updateTime;
 
-    @Column(name = "create_by")
-    private String createBy;
-
     @Column(name = "update_by")
     private String updateBy;
-
 }

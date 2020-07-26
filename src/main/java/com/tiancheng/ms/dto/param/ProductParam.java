@@ -21,5 +21,9 @@ public class ProductParam {
 
     private Integer alertNums;
 
+    private String imageCode;
+
+    private Double weight;
+
     private String description;
 }

@@ -88,14 +88,13 @@ public class ProductService {
 
     public Page<ProductEntity> pageQryProduct(PageRequestWrapper<ProductQueryParam> pageRequest) {
         PageHelper.startPage(pageRequest.getPageNo(), pageRequest.getPageSize());
-        List<ProductEntity> entities = new ArrayList<>();
-        Example example = new Example(ProductEntity.class);
-        if (pageRequest.getQueryParam() != null && !StringUtils.isEmpty(pageRequest.getQueryParam().getName().trim())) {
-            example.createCriteria().andLike(ExampleConstant.PRODUCT_NAME, pageRequest.getQueryParam().getName().trim());
-            entities =  productMapper.selectByExample(example);
-        } else {
-            entities = productMapper.selectAll();
+        if (pageRequest.getQueryParam().getName() != null) {
+            pageRequest.getQueryParam().setName(pageRequest.getQueryParam().getName().trim());
         }
+        if (pageRequest.getQueryParam().getCode() != null) {
+            pageRequest.getQueryParam().setCode(pageRequest.getQueryParam().getCode().trim());
+        }
+        List<ProductEntity> entities = productMapper.queryByParam(pageRequest.getQueryParam());
         PageInfo pageInfo = new PageInfo(entities);
         return new Page<>(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), entities);
     }

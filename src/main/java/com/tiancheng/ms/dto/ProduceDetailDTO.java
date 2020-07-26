@@ -28,4 +28,11 @@ public class ProduceDetailDTO {
     private String produceProcessName;
 
     private String processChargeUserName;
+
+    private Integer prdNums;
+
+    private Integer alertNums;
+
+    private String productName;
+
 }

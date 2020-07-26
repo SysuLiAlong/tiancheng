@@ -8,6 +8,8 @@
         <result column="name" property="name" jdbcType="VARCHAR"/>
         <result column="prd_nums" property="prdNums" jdbcType="INTEGER"/>
         <result column="alert_nums" property="alertNums" jdbcType="INTEGER"/>
+        <result column="weight" property="weight" jdbcType="DOUBLE"/>
+        <result column="image_code" property="imageCode" jdbcType="VARCHAR"/>
         <result column="description" property="description" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
@@ -15,5 +17,16 @@
         <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
 
     </resultMap>
+    <select id="queryByParam" resultMap="BaseResultMap">
+        select * from product
+        <where>
+            <if test="queryParam.code != null and queryParam.code != ''">
+                code like concat('%',#{queryParam.code}, '%')
+            </if>
+            <if test="queryParam.name != null and queryParam.name != ''">
+                name like concat('%',#{queryParam.name}, '%')
+            </if>
+        </where>
+    </select>
 
 </mapper>

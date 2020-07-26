@@ -12,10 +12,7 @@ import com.tiancheng.ms.dto.ProduceProcessDTO;
 import com.tiancheng.ms.dto.param.ProduceParam;
 import com.tiancheng.ms.dto.param.ProduceProcessAndMsgParam;
 import com.tiancheng.ms.dto.param.ProduceQueryParam;
-import com.tiancheng.ms.entity.ProcessEntity;
-import com.tiancheng.ms.entity.ProduceEntity;
-import com.tiancheng.ms.entity.ProduceMsgEntity;
-import com.tiancheng.ms.entity.ProduceProcessEntity;
+import com.tiancheng.ms.entity.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -43,13 +40,13 @@ public class ProduceService {
     private ProcessMapper processMapper;
 
     @Autowired
-    private UserMapper userMapper;
-
-    @Autowired
     private UserRoleConstant userRoleConstant;
 
     @Autowired
     private ProduceProcessConstant produceProcessConstant;
+
+    @Autowired
+    private ProductMapper productMapper;
 
     public Page<ProduceDetailDTO> pageQryProduce(ProduceQueryParam queryParam) {
         PageHelper.startPage(queryParam.getPageNo(),queryParam.getPageSize());
@@ -184,8 +181,12 @@ public class ProduceService {
     public ProduceDetailDTO getProduceDetail(Integer produceId) {
         ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(produceId);
         ProcessEntity currentProcess = produceProcessMapper.selectCurrentProcess(produceId);
+        ProductEntity productEntity = productMapper.selectOneByCode(produceEntity.getProductCode());
         ProduceDetailDTO produceDetailDTO = new ProduceDetailDTO();
         BeanUtils.copyProperties(produceEntity,produceDetailDTO);
+        produceDetailDTO.setProductName(productEntity.getName());
+        produceDetailDTO.setPrdNums(productEntity.getPrdNums());
+        produceDetailDTO.setAlertNums(productEntity.getAlertNums());
         if (currentProcess != null) {
             produceDetailDTO.setProcessChargeUserName(currentProcess.getChargeUserName());
             produceDetailDTO.setProduceProcessName(currentProcess.getName());
@@ -258,6 +259,10 @@ public class ProduceService {
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
         addProduceMsg(param.getProduceMsgEntity());
+
+        ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(produceProcessEntity.getProduceId());
+        ProductEntity productEntity = productMapper.selectOneByCode(produceEntity.getProductCode());
+
     }
 
     @Transactional(rollbackFor = Exception.class)

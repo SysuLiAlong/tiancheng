@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tiancheng.ms.dao.mapper.AlarmMapper">
+    <resultMap id="BaseResultMap" type="com.tiancheng.ms.entity.AlarmEntity">
+        <!-- generate by mybatis-generator-zy, don't modify -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="produce_id" property="productId" jdbcType="INTEGER"/>
+        <result column="process_id" property="processId" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+        <result column="resolved" property="resolved" jdbcType="BIT"/>
+
+    </resultMap>
+
+    <resultMap id="DetailResultMap" type="com.tiancheng.ms.dto.AlarmDTO" extends="BaseResultMap">
+        <result column="produceCode" property="produceCode" jdbcType="VARCHAR"/>
+        <result column="productCode" property="produceCode" jdbcType="VARCHAR"/>
+        <result column="processName" property="processName" jdbcType="VARCHAR"/>
+    </resultMap>
+
+</mapper>
