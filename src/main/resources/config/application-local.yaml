@@ -28,3 +28,6 @@ role:
   commonUser: COMMON_USER
   commonUserName: 普通用户
 
+file:
+  path: D://tiancheng/image/
+

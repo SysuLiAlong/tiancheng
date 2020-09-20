@@ -6,7 +6,7 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <id column="product_id" property="productId" jdbcType="INTEGER"/>
         <id column="process_id" property="processId" jdbcType="INTEGER"/>
-        <id column="intervasl" property="intervals" jdbcType="INTEGER"/>
+        <id column="intervals" property="intervals" jdbcType="INTEGER"/>
     </resultMap>
 
     <select id="selectByProductId" resultType="com.tiancheng.ms.dto.RulesDTO">

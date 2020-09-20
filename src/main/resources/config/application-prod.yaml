@@ -20,3 +20,5 @@ process:
   userName: admin
   realName: 管理员
 
+file:
+  path: /root/tiancheng/image/
