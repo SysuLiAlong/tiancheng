@@ -35,4 +35,6 @@ public class AlarmEntity {
 
     @Column(name = "update_by")
     private String updateBy;
+
+
 }

@@ -19,11 +19,11 @@ public class ProductEntity {
 
     private String name;
 
-    @Column(name = "prd_nums")
-    private Integer prdNums;
+    @Column(name = "nums_per_stove")
+    private Integer numsPerStove;
 
-    @Column(name = "alert_nums")
-    private Integer alertNums;
+    @Column(name = "alert_percent")
+    private Integer alertPercent;
 
     private Double weight;
 

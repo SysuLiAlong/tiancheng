@@ -1,6 +1,7 @@
 package com.tiancheng.ms.dao.mapper;
 
 import com.tiancheng.ms.dto.param.ProductQueryParam;
+import com.tiancheng.ms.entity.ProcessEntity;
 import com.tiancheng.ms.entity.ProductEntity;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
@@ -13,4 +14,7 @@ public interface ProductMapper extends Mapper<ProductEntity> {
     ProductEntity selectOneByCode(@Param("code") String code);
 
     List<ProductEntity> queryByParam(@Param("queryParam") ProductQueryParam queryParam);
+
+    @Select("select * from product_process where product_id = #{productId}")
+    List<ProcessEntity> getProcesses(@Param("productId") Integer productId);
 }

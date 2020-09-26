@@ -1,16 +1,21 @@
 package com.tiancheng.ms.controller.auth;
 
 import com.tiancheng.ms.common.aop.DeleteType;
+import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.enums.DeleteTypeEnum;
-import com.tiancheng.ms.dto.ProduceDetailDTO;
+import com.tiancheng.ms.constant.UserRoleConstant;
+import com.tiancheng.ms.dto.ProduceDTO;
 import com.tiancheng.ms.dto.ProduceProcessDTO;
+import com.tiancheng.ms.dto.ProduceProductDTO;
+import com.tiancheng.ms.dto.ProduceProductDetailDTO;
+import com.tiancheng.ms.dto.param.ProduceMsgParam;
 import com.tiancheng.ms.dto.param.ProduceParam;
 import com.tiancheng.ms.dto.param.ProduceProcessAndMsgParam;
 import com.tiancheng.ms.dto.param.ProduceQueryParam;
 import com.tiancheng.ms.entity.ProduceMsgEntity;
-import com.tiancheng.ms.entity.ProduceProcessEntity;
 import com.tiancheng.ms.service.ProduceService;
+import com.tiancheng.ms.util.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,9 +28,22 @@ public class ProduceController {
     @Autowired
     private ProduceService produceService;
 
+    @Autowired
+    UserRoleConstant userRoleConstant;
+
     @PostMapping("/page_qry")
-    public Page<ProduceDetailDTO> pageQryProduce(@RequestBody ProduceQueryParam queryParam) {
-        return produceService.pageQryProduce(queryParam);
+    public Page<ProduceDTO> pageQryProduce(@RequestBody ProduceQueryParam queryParam) {
+        String currentUserRole = ContextHolder.getUser().getRealName();
+        if (userRoleConstant.commonUser.equals(currentUserRole)) {
+            return produceService.pageQryProduceForCommonUser(queryParam);
+        } else {
+            return produceService.pageQryProduceForAdmin(queryParam);
+        }
+    }
+
+    @GetMapping("/{produceId}")
+    public List<ProduceProductDTO> listProduceProduct(@PathVariable Integer produceId) {
+        return produceService.listProduceProduct(produceId);
     }
 
     @PostMapping("/add")
@@ -34,23 +52,23 @@ public class ProduceController {
     }
 
     @PostMapping("/msg/add")
-    public void addProduceMsg(@RequestBody ProduceMsgEntity produceMsgEntity) {
-        produceService.addProduceMsg(produceMsgEntity);
+    public void addProduceMsg(@RequestBody ProduceMsgParam param) {
+        produceService.addProduceMsg(param);
     }
 
-    @GetMapping("/process/{produceId}")
-    public List<ProduceProcessDTO> listProduceProcess(@PathVariable Integer produceId) {
-        return produceService.listProduceProcess(produceId);
+    @GetMapping("/process/{produce_product_id}")
+    public List<ProduceProcessDTO> listProduceProcess(@PathVariable("produce_product_id") Integer produceProductId) {
+        return produceService.listProduceProcess(produceProductId);
     }
 
-    @GetMapping("/msg/{produceId}")
-    public List<ProduceMsgEntity> listProduceMsg(@PathVariable Integer produceId) {
-        return produceService.listProduceMsg(produceId);
+    @GetMapping("/msg/{produce_product_id}")
+    public List<ProduceMsgEntity> listProduceMsg(@PathVariable("produce_product_id") Integer produceProductId) {
+        return produceService.listProduceMsg(produceProductId);
     }
 
-    @GetMapping("/detail/{produceId}")
-    public ProduceDetailDTO getProduceDetail(@PathVariable Integer produceId) {
-        return produceService.getProduceDetail(produceId);
+    @GetMapping("/detail/{produce_product_id}")
+    public ProduceProductDetailDTO getProduceDetail(@PathVariable("produce_product_id") Integer produceProductId) {
+        return produceService.getProduceProductDetail(produceProductId);
     }
 
     @PostMapping("/process/accept")
@@ -68,19 +86,19 @@ public class ProduceController {
         produceService.transmitProcess(param);
     }
 
-    @GetMapping("/process/last/{produceId}")
-    public ProduceProcessEntity getLastProduceProcess(@PathVariable Integer produceId) {
-        return produceService.getLastProcess(produceId);
+    @GetMapping("/process/last/{produce_product_id}")
+    public ProduceProcessDTO getLastProduceProcess(@PathVariable("produce_product_id") Integer produceProductId) {
+        return BeanUtils.copy(produceService.getLastProcess(produceProductId), ProduceProcessDTO.class);
     }
 
-    @GetMapping("/process/current/{produceId}")
-    public ProduceProcessEntity getCurrentProduceProcess(@PathVariable Integer produceId) {
-        return produceService.getCurrentProcess(produceId);
+    @GetMapping("/process/current/{produce_product_id}")
+    public ProduceProcessDTO getCurrentProduceProcess(@PathVariable("produce_product_id") Integer produceProductId) {
+        return BeanUtils.copy(produceService.getCurrentProcess(produceProductId), ProduceProcessDTO.class);
     }
 
-    @GetMapping("/process/next/{produceId}")
-    public ProduceProcessEntity getNextProduceProcess(@PathVariable Integer produceId) {
-        return produceService.getNextProcess(produceId);
+    @GetMapping("/process/next/{produce_product_id}")
+    public ProduceProcessDTO getNextProduceProcess(@PathVariable("produce_product_id") Integer produceProductId) {
+        return BeanUtils.copy(produceService.getNextProcess(produceProductId), ProduceProcessDTO.class);
     }
 
     @DeleteType(value = DeleteTypeEnum.PRODUCE, id = "id")
@@ -88,4 +106,5 @@ public class ProduceController {
     public void deleteProduce(@PathVariable Integer id) {
         produceService.deleteProduce(id);
     }
+
 }

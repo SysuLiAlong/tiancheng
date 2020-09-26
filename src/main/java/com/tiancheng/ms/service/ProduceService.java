@@ -7,22 +7,24 @@ import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.*;
 import com.tiancheng.ms.dao.mapper.*;
-import com.tiancheng.ms.dto.ProduceDetailDTO;
+import com.tiancheng.ms.dto.ProduceDTO;
 import com.tiancheng.ms.dto.ProduceProcessDTO;
-import com.tiancheng.ms.dto.param.ProduceParam;
-import com.tiancheng.ms.dto.param.ProduceProcessAndMsgParam;
-import com.tiancheng.ms.dto.param.ProduceQueryParam;
+import com.tiancheng.ms.dto.ProduceProductDTO;
+import com.tiancheng.ms.dto.ProduceProductDetailDTO;
+import com.tiancheng.ms.dto.param.*;
 import com.tiancheng.ms.entity.*;
-import org.springframework.beans.BeanUtils;
+import com.tiancheng.ms.util.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProduceService {
@@ -37,6 +39,9 @@ public class ProduceService {
     private ProduceProcessMapper produceProcessMapper;
 
     @Autowired
+    private ProduceProductMapper produceProductMapper;
+
+    @Autowired
     private ProcessMapper processMapper;
 
     @Autowired
@@ -48,22 +53,33 @@ public class ProduceService {
     @Autowired
     private ProductMapper productMapper;
 
-    public Page<ProduceDetailDTO> pageQryProduce(ProduceQueryParam queryParam) {
+    public Page<ProduceDTO> pageQryProduceForAdmin(ProduceQueryParam queryParam) {
         PageHelper.startPage(queryParam.getPageNo(),queryParam.getPageSize());
-        String chargeUserName = null;
-        if (ContextHolder.getUser().getRole().equals(userRoleConstant.getCommonUser())) {
-            chargeUserName = queryParam.getChargeUserName();
-        }
-        List<ProduceDetailDTO> produceDetailDTOS =  produceMapper.pageQryProduceDetail(queryParam.getOrderCode(),
-                queryParam.getOrderParam(),chargeUserName);
-        PageInfo pageInfo = new PageInfo(produceDetailDTOS);
-        return new Page<>(pageInfo.getPageNum(),pageInfo.getPageSize(),pageInfo.getTotal(),produceDetailDTOS);
+        List<ProduceEntity> entities = produceMapper.pageQryProduceForAdmin(queryParam.getOrderCode(), queryParam.getOrderParam());
+        List<ProduceDTO> dtos = BeanUtils.copy(entities, ProduceDTO.class);
+        PageInfo pageInfo = new PageInfo(dtos);
+        return new Page<>(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), dtos);
+    }
+
+    public Page<ProduceDTO> pageQryProduceForCommonUser(ProduceQueryParam queryParam) {
+        String chargeUserName = ContextHolder.getUser().getUserName();
+        List<Integer> produceIds = produceProcessMapper.queryUnOverProduceIdsByChargeUserName(chargeUserName);
+        List<ProduceEntity> entities = produceMapper.pageQryProduceForAdmin(queryParam.getOrderCode(), queryParam.getOrderParam());
+        List<ProduceEntity> filterProduces = entities.stream().filter(entity -> {
+            return produceIds.contains(entity.getId());
+        }).collect(Collectors.toList());
+        List<ProduceDTO> dtos = BeanUtils.copy(filterProduces, ProduceDTO.class);
+        // 手动分页
+        Integer beginIndex = queryParam.getPageNo() * queryParam.getPageSize();
+        Integer endIndex = beginIndex + queryParam.getPageSize() <= filterProduces.size() ? beginIndex + queryParam.getPageSize() : filterProduces.size();
+        List<ProduceDTO> pagedDtos = dtos.subList(beginIndex, endIndex);
+        return new Page<>(queryParam.getPageNo(), queryParam.getPageSize(), (long) dtos.size(), pagedDtos);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void addProduce(ProduceParam produceParam) {
         ProduceEntity entity = new ProduceEntity();
-        BeanUtils.copyProperties(produceParam,entity);
+        BeanUtils.copy(produceParam,entity);
         entity.setCreateTime(new Date());
         entity.setUpdateTime(new Date());
         entity.setCreateBy(ContextHolder.getUser().getUserName());
@@ -71,8 +87,24 @@ public class ProduceService {
         entity.setCode(generiateProduceCode());
         produceMapper.insert(entity);
 
-        List<ProcessEntity> processEntities = processMapper.getProduceProcess(entity.getProductCode());
-        if (processEntities.size() != 0) {
+        if (CollectionUtils.isEmpty(produceParam.getProduceProductParams())) {
+            return;
+        }
+
+        for (ProduceProductParam productParam : produceParam.getProduceProductParams()) {
+            ProduceProductEntity productEntity = new ProduceProductEntity();
+            BeanUtils.copy(productParam, productEntity);
+            productEntity.setCreateBy(ContextHolder.getUser().getUserName());
+            productEntity.setUpdateBy(ContextHolder.getUser().getUserName());
+            productEntity.setCreateTime(new Date());
+            productEntity.setUpdateTime(new Date());
+            productEntity.setProduceId(entity.getId());
+            produceProductMapper.insert(productEntity);
+            List<ProcessEntity> processEntities = productMapper.getProcesses(productParam.getProduceId());
+            if (CollectionUtils.isEmpty(processEntities)) {
+                continue;
+            }
+
             List<ProduceProcessEntity> produceProcessEntities = new ArrayList<>(processEntities.size());
             Integer nextProcess = produceProcessConstant.getEndId();
             //添加“结束”流程
@@ -90,6 +122,7 @@ public class ProduceService {
                 produceProcessEntity.setProcessName(processEntity.getName());
                 produceProcessEntity.setChargeUserName(processEntity.getChargeUserName());
                 produceProcessEntity.setNextProcess(nextProcess);
+                produceProcessEntity.setProduceProductId(productEntity.getId());
                 nextProcess = processEntity.getId();
                 if (i == processEntities.size() - 1) {
                     produceProcessEntity.setStatus(ProduceProcessStatusConstant.ARRIVE_STATUS);
@@ -110,19 +143,12 @@ public class ProduceService {
             produceProcessMapper.insertList(produceProcessEntities);
         }
 
-        if (!StringUtils.isEmpty(produceParam.getContent())) {
-            ProduceMsgEntity produceMsgEntity = new ProduceMsgEntity();
-            produceMsgEntity.setProduceId(entity.getId());
-            produceMsgEntity.setContent(produceParam.getContent());
-            produceMsgEntity.setCreateTime(new Date());
-            produceMsgEntity.setCreateBy(ContextHolder.getUser().getUserName());
-            produceMsgEntity.setType(1);
-            produceMsgMapper.insert(produceMsgEntity);
-        }
+
     }
 
-    public void addProduceMsg(ProduceMsgEntity entity) {
-
+    public void addProduceMsg(ProduceMsgParam param) {
+        ProduceMsgEntity entity = new ProduceMsgEntity();
+        BeanUtils.copy(param, entity);
         entity.setCreateTime(new Date());
         entity.setUpdateTime(new Date());
         entity.setCreateBy(ContextHolder.getUser().getUserName());
@@ -130,8 +156,8 @@ public class ProduceService {
         produceMsgMapper.insert(entity);
     }
 
-    public List<ProduceMsgEntity> listProduceMsg(Integer produceId) {
-        List<ProduceMsgEntity> entities =  produceMsgMapper.listProduceMsg(produceId);
+    public List<ProduceMsgEntity> listProduceMsg(Integer produceProductId) {
+        List<ProduceMsgEntity> entities =  produceMsgMapper.listProduceMsg(produceProductId);
         entities.stream().forEach(entity -> {
             String processName = StringUtils.isEmpty(entity.getProcessName()) ? "" : entity.getProcessName() ;
             String createBy = StringUtils.isEmpty(entity.getCreateBy()) ? "" : entity.getCreateBy();
@@ -174,73 +200,61 @@ public class ProduceService {
         return entities;
     }
 
-    public List<ProduceProcessDTO> listProduceProcess(Integer produceId) {
-        return produceProcessMapper.listProduceProcess(produceId);
+    public List<ProduceProcessDTO> listProduceProcess(Integer produceProductId) {
+        return produceProcessMapper.listProduceProcess(produceProductId);
     }
 
-    public ProduceDetailDTO getProduceDetail(Integer produceId) {
-        ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(produceId);
-        ProcessEntity currentProcess = produceProcessMapper.selectCurrentProcess(produceId);
-        ProductEntity productEntity = productMapper.selectOneByCode(produceEntity.getProductCode());
-        ProduceDetailDTO produceDetailDTO = new ProduceDetailDTO();
-        BeanUtils.copyProperties(produceEntity,produceDetailDTO);
-        produceDetailDTO.setProductName(productEntity.getName());
-        produceDetailDTO.setPrdNums(productEntity.getPrdNums());
-        produceDetailDTO.setAlertNums(productEntity.getAlertNums());
-        if (currentProcess != null) {
-            produceDetailDTO.setProcessChargeUserName(currentProcess.getChargeUserName());
-            produceDetailDTO.setProduceProcessName(currentProcess.getName());
-        }
-        return produceDetailDTO;
-    }
+    public ProduceProductDetailDTO getProduceProductDetail(Integer produceProductId) {
+        return produceProductMapper.queryProduceProduct(produceProductId);
+   }
 
     @Transactional(rollbackFor = Exception.class)
     public void acceptProcess(ProduceProcessAndMsgParam param) {
-        ProduceProcessEntity produceProcessEntity = param.getProduceProcessEntity();
+        ProduceProcessEntity produceProcessEntity = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getId());
         produceProcessEntity.setStatus(ProduceProcessStatusConstant.ACCEPT_STATUS);
         produceProcessMapper.updateByPrimaryKey(produceProcessEntity);
 
-        ProduceProcessEntity nextProcess = produceProcessMapper.getNextProcess(produceProcessEntity.getId());
+        ProduceProcessEntity nextProcess = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getNextProcess());
         nextProcess.setStatus(ProduceProcessStatusConstant.START_STATUS);
         nextProcess.setStartTime(new Date());
         nextProcess.setStartNum(produceProcessEntity.getEndNum());
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
-        addProduceMsg(param.getProduceMsgEntity());
+        addProduceMsg(param.getProduceMsgParam());
     }
 
     @Transactional(rollbackFor = Exception.class)
     public void rejectProcess(ProduceProcessAndMsgParam param) {
-        ProduceProcessEntity produceProcessEntity = param.getProduceProcessEntity();
+        ProduceProcessEntity produceProcessEntity = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getId());
         produceProcessEntity.setStatus(ProduceProcessStatusConstant.START_STATUS);
         produceProcessEntity.setEndTime(null);
         produceProcessMapper.updateByPrimaryKey(produceProcessEntity);
 
-        ProduceProcessEntity nextProcess = produceProcessMapper.getNextProcess(produceProcessEntity.getId());
+        ProduceProcessEntity nextProcess = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getNextProcess());
         nextProcess.setStatus(ProduceProcessStatusConstant.INIT_STATUS);
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
-        addProduceMsg(param.getProduceMsgEntity());
+        addProduceMsg(param.getProduceMsgParam());
     }
 
-    public ProduceProcessEntity getLastProcess(Integer produceId) {
-        ProduceProcessEntity currentProcess = getCurrentProcess(produceId);
+    public ProduceProcessEntity getLastProcess(Integer produceProductId) {
+        ProduceProcessEntity currentProcess = getCurrentProcess(produceProductId);
         if (currentProcess == null) {
             throw new BusinessException(ErrorCode.FAIL,"数据异常，无法查到当前流程,请重试！");
         }
-        return produceProcessMapper.getLastProcess(produceId,currentProcess.getProcessId());
+        return produceProcessMapper.getLastProcess(produceProductId,currentProcess.getProcessId());
     }
 
-    public ProduceProcessEntity getCurrentProcess(Integer produceId) {
-        ProduceProcessEntity currentProcess =  produceProcessMapper.getCurrentProcess(produceId);
+    public ProduceProcessEntity getCurrentProcess(Integer produceProductId) {
+        ProduceProcessEntity currentProcess =  produceProcessMapper.getCurrentProcess(produceProductId);
         if (currentProcess == null) {
             throw new BusinessException(ErrorCode.FAIL,"数据异常，无法查到当前流程,请重试！");
         }
         return currentProcess;
     }
 
-    public ProduceProcessEntity getNextProcess(Integer produceId) {
-        ProduceProcessEntity currentProcess = getCurrentProcess(produceId);
+    public ProduceProcessEntity getNextProcess(Integer produceProductId) {
+        ProduceProcessEntity currentProcess = getCurrentProcess(produceProductId);
         if (currentProcess == null) {
             throw new BusinessException(ErrorCode.FAIL,"数据异常，无法查到当前流程,请重试！");
         }
@@ -249,20 +263,16 @@ public class ProduceService {
 
     @Transactional(rollbackFor = Exception.class)
     public void transmitProcess(ProduceProcessAndMsgParam param) {
-        ProduceProcessEntity produceProcessEntity = param.getProduceProcessEntity();
+        ProduceProcessEntity produceProcessEntity = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getId());
         produceProcessEntity.setStatus(ProduceProcessStatusConstant.END_STATUS);
         produceProcessEntity.setEndTime(new Date());
         produceProcessMapper.updateByPrimaryKey(produceProcessEntity);
 
-        ProduceProcessEntity nextProcess = produceProcessMapper.getNextProcess(produceProcessEntity.getId());
+        ProduceProcessEntity nextProcess = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getNextProcess());
         nextProcess.setStatus(ProduceProcessStatusConstant.ARRIVE_STATUS);
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
-        addProduceMsg(param.getProduceMsgEntity());
-
-        ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(produceProcessEntity.getProduceId());
-        ProductEntity productEntity = productMapper.selectOneByCode(produceEntity.getProductCode());
-
+        addProduceMsg(param.getProduceMsgParam());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -270,6 +280,10 @@ public class ProduceService {
         produceMapper.deleteByPrimaryKey(produceId);
         produceProcessMapper.deleteByProduceId(produceId);
         produceMsgMapper.deleteByProduceId(produceId);
+    }
+
+    public List<ProduceProductDTO> listProduceProduct(Integer produceId) {
+        return produceProductMapper.getProductsByProduceId(produceId);
     }
 
     private String generiateProduceCode() {

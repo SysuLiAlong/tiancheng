@@ -2,37 +2,18 @@ package com.tiancheng.ms.dto;
 
 import lombok.Data;
 
-import java.util.Date;
+import java.util.List;
 
 @Data
 public class ProduceDetailDTO {
 
-    private Integer id;
+    private ProduceDTO produceDTO;
 
-    private String code;
+    private List<ProduceProductDTO> produceProductDTOs;
 
-    private String orderCode;
-
-    private String productCode;
-
-    private Integer stove;
-
-    private Date createTime;
-
-    private Date updateTime;
-
-    private String createBy;
-
-    private String updateBy;
-
-    private String produceProcessName;
-
-    private String processChargeUserName;
-
-    private Integer prdNums;
-
-    private Integer alertNums;
-
-    private String productName;
+    public ProduceDetailDTO(ProduceDTO produceDTO, List<ProduceProductDTO> produceProductDTOs) {
+        this.produceDTO = produceDTO;
+        this.produceProductDTOs = produceProductDTOs;
+    }
 
 }

@@ -12,6 +12,4 @@ public class ProduceQueryParam {
     private Integer pageNo = 1;
 
     private Integer pageSize = 10;
-
-    private String chargeUserName;
 }

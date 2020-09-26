@@ -17,9 +17,9 @@ public class ProductParam {
     @NotNull(message = "产品名称不能为空")
     private String name;
 
-    private Integer prdNums;
+    private Integer numsPerStove;
 
-    private Integer alertNums;
+    private Integer alertPercent;
 
     private String imageCode;
 

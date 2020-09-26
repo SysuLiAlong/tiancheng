@@ -10,8 +10,8 @@ import java.util.List;
 
 public interface ProduceMsgMapper extends Mapper<ProduceMsgEntity> {
 
-    @Select("select * from produce_msg where produce_id = #{produceId} order by create_time")
-    List<ProduceMsgEntity> listProduceMsg(@Param("produceId") Integer produceId);
+    @Select("select * from produce_msg where produce_id = #{produceProductId} order by create_time")
+    List<ProduceMsgEntity> listProduceMsg(@Param("produceProductId") Integer produceProductId);
 
     @Delete("delete from produce_msg where produce_id = #{produceId}")
     void deleteByProduceId(@Param("produceId") Integer produceId);

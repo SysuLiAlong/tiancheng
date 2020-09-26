@@ -14,12 +14,12 @@ import java.util.List;
 
 public interface ProduceProcessMapper extends Mapper<ProduceProcessEntity> , MySqlMapper<ProduceProcessEntity> {
 
-    List<ProduceProcessDTO> listProduceProcess(@Param("produceId") Integer produceId);
+    List<ProduceProcessDTO> listProduceProcess(@Param("produceProductId") Integer produceProductId);
 
     ProduceProcessEntity getNextProcess(@Param("produceProcessId") Integer produceProcessId);
 
-    @Select("select * from produce_process where status in (1,2) and produce_id = #{produceId} limit 1")
-    ProduceProcessEntity getCurrentProcess(@Param("produceId") Integer produceId);
+    @Select("select * from produce_process where status in (1,2) and produce_product_id = #{produceProductId} limit 1")
+    ProduceProcessEntity getCurrentProcess(@Param("produceProductId") Integer produceProductId);
 
     @Delete("delete from produce_process where produce_id = #{produceId}")
     void deleteByProduceId(@Param("produceId") Integer produceId);
@@ -41,4 +41,8 @@ public interface ProduceProcessMapper extends Mapper<ProduceProcessEntity> , MyS
 
     @Select("select * from produce_process where produce_id = #{produceId} and process_id = #{startProcessId}")
     ProduceProcessEntity selectStartProduceProcess(@Param("produceId") Integer produceId,@Param("startProcessId") Integer startProcessId);
+
+    // 流程负责人不是admin这种系统用户，说明produce还未结束
+    @Select("select produce_id from produce_process where charge_user_name = #{chargeUserName}")
+    List<Integer> queryUnOverProduceIdsByChargeUserName(@Param("chargeUserName") String chargeUserName);
 }

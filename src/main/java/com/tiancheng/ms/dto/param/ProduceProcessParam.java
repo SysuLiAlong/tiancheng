@@ -1,11 +1,11 @@
-package com.tiancheng.ms.dto;
+package com.tiancheng.ms.dto.param;
 
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class ProduceProcessDTO {
+public class ProduceProcessParam {
 
     private Integer id;
 
@@ -30,4 +30,6 @@ public class ProduceProcessDTO {
     private String ChargeUserName;
 
     private String processName;
+
+    private Integer nextProcess;
 }

@@ -5,6 +5,7 @@
         <!-- generate by mybatis-generator-zy, don't modify -->
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="produce_id" property="produceId" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
         <result column="content" property="content" jdbcType="VARCHAR"/>
         <result column="file_path" property="filePath" jdbcType="VARCHAR"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>

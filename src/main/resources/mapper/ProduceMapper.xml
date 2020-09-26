@@ -6,8 +6,6 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="code" property="code" jdbcType="VARCHAR"/>
         <result column="order_code" property="orderCode" jdbcType="VARCHAR"/>
-        <result column="product_code" property="productCode" jdbcType="VARCHAR"/>
-        <result column="stove" property="stove" jdbcType="INTEGER"/>
         <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
         <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
         <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
@@ -15,30 +13,9 @@
 
     </resultMap>
 
-    <resultMap id="DetailResultMap" type="com.tiancheng.ms.dto.ProduceDetailDTO" extends="BaseResultMap">
-        <result column="process_name" property="produceProcessName" jdbcType="VARCHAR"/>
-        <result column="process_charge_user_name" property="processChargeUserName" jdbcType="VARCHAR"/>
-    </resultMap>
-
-    <select id="getProduceDetail" resultMap="DetailResultMap">
-        select p1.*,p3.charge_user_name as process_charge_user_name,p3.name as process_name
-        from produce p1
-        left join produce_process p2
-        on p1.id = p2.produce_id
-        left join process p3
-        on p3.id = p2.process_id and p2.status = 1
-        where p1.id = #{produceId}
-    </select>
-    <select id="pageQryProduceDetail" resultMap="DetailResultMap">
-        select p1.*,p3.charge_user_name as process_charge_user_name,p3.name as process_name
-        from produce p1
-        left join produce_process p2
-        on p1.id = p2.produce_id
-        left join process p3
-        on p3.id = p2.process_id
+    <select id="pageQryProduceForAdmin" resultMap="BaseResultMap">
+        select * from produce
         <where>
-            and p2.status in (1,2)
-            <if test="chargeUserName != null and chargeUserName != ''">and p3.charge_user_name = #{chargeUserName}</if>
             <if test="orderCode != null and orderCode != ''">and order_code like "%"#{orderCode}"%"</if>
         </where>
         <choose>

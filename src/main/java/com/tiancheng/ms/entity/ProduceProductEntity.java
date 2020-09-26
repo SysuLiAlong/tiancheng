@@ -8,19 +8,21 @@ import java.util.Date;
 
 @Data
 @ToString
-@Table(name = "produce")
-public class ProduceEntity {
-
-    private Integer PRODUCE_COMPLETE_STATUS = 0;
+@Table(name = "produce_product")
+public class ProduceProductEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String code;
+    @Column(name = "produce_id")
+    private Integer produceId;
 
-    @Column(name = "order_code")
-    private String orderCode;
+    @Column(name = "product_id")
+    private Integer productId;
+
+    @Column(name = "mount")
+    private Integer mount;
 
     @Column(name = "create_time")
     private Date createTime;
@@ -33,9 +35,4 @@ public class ProduceEntity {
 
     @Column(name = "update_by")
     private String updateBy;
-
-    private Integer status = PRODUCE_COMPLETE_STATUS;
-
-    private String description;
-
 }

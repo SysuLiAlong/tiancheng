@@ -6,21 +6,17 @@ import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.GlobalConstant;
-import com.tiancheng.ms.dao.mapper.UserMapper;
 import com.tiancheng.ms.dto.UserDTO;
 import com.tiancheng.ms.dto.param.ChangePasswdParam;
 import com.tiancheng.ms.dto.param.UserParam;
-import com.tiancheng.ms.entity.UserEntity;
 import com.tiancheng.ms.service.UserService;
 import com.tiancheng.ms.util.CookieUtil;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/user")
@@ -28,17 +24,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @Autowired
-    private UserMapper userMapper;
-
     @RequestMapping("/all")
     public List<UserDTO> getUser(){
-        List<UserEntity> userEntities =  userMapper.selectAll();
-        return userEntities.stream().map(userEntity -> {
-            UserDTO userDTO = new UserDTO();
-            BeanUtils.copyProperties(userEntity,userDTO);
-            return userDTO;
-        }).collect(Collectors.toList());
+        return userService.getUser();
     }
 
     @PostMapping("/change_password")
@@ -75,10 +63,7 @@ public class UserController {
 
     @GetMapping("/detail/{userId}")
     public UserDTO userDetail(@PathVariable Integer userId) {
-        UserEntity entity =  userMapper.selectByPrimaryKey(userId);
-        UserDTO userDTO = new UserDTO();
-        BeanUtils.copyProperties(entity,userDTO);
-        return userDTO;
+        return userService.userDetail(userId);
     }
 
     @RequestMapping("/update")
@@ -92,14 +77,12 @@ public class UserController {
 
     @PostMapping("/delete/{userId}")
     public void deleteUser(@PathVariable Integer userId) {
-        userMapper.deleteByPrimaryKey(userId);
+        userService.deleteUser(userId);
     }
 
     @GetMapping("/options")
     public List<SelectOption> userOptions() {
-        return userMapper.selectAll().stream()
-                .map(entity -> new SelectOption(entity.getId().toString(),entity.getUserName()))
-                .collect(Collectors.toList());
+        return userService.userOptions();
     }
 
     @PostMapping("/logout")

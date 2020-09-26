@@ -6,8 +6,8 @@
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="code" property="code" jdbcType="VARCHAR"/>
         <result column="name" property="name" jdbcType="VARCHAR"/>
-        <result column="prd_nums" property="prdNums" jdbcType="INTEGER"/>
-        <result column="alert_nums" property="alertNums" jdbcType="INTEGER"/>
+        <result column="nums_per_stove" property="numsPerStove" jdbcType="INTEGER"/>
+        <result column="alert_percent" property="alertPercent" jdbcType="INTEGER"/>
         <result column="weight" property="weight" jdbcType="DOUBLE"/>
         <result column="image_code" property="imageCode" jdbcType="VARCHAR"/>
         <result column="description" property="description" jdbcType="VARCHAR"/>

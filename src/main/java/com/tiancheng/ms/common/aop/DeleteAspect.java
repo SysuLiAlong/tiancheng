@@ -40,6 +40,9 @@ public class DeleteAspect {
     private ProduceMapper produceMapper;
 
     @Autowired
+    private ProduceProductMapper produceProductMapper;
+
+    @Autowired
     private MaterialMapper materialMapper;
 
     @Autowired
@@ -140,8 +143,8 @@ public class DeleteAspect {
         if (entity == null) {
             throw new BusinessException(ErrorCode.FAIL,"删除的产品不存在！");
         }
-        List<ProduceEntity> produceEntities = produceMapper.selectByProductId(productId);
-        if (!CollectionUtils.isEmpty(produceEntities)) {
+        List<ProduceProductEntity> produceProductEntities = produceProductMapper.getUnoverProducesByProductId(productId);
+        if (!CollectionUtils.isEmpty(produceProductEntities)) {
             throw new BusinessException(ErrorCode.FAIL,"删除的产品【" + entity.getCode() + "】已经被引用！");
         }
         return;

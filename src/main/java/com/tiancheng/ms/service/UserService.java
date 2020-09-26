@@ -2,9 +2,11 @@ package com.tiancheng.ms.service;
 
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.context.ContextUser;
+import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.dao.mapper.UserMapper;
+import com.tiancheng.ms.dto.UserDTO;
 import com.tiancheng.ms.dto.param.ChangePasswdParam;
 import com.tiancheng.ms.dto.param.UserParam;
 import com.tiancheng.ms.entity.UserEntity;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.Date;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -22,6 +26,21 @@ public class UserService {
 
     @Autowired
     private UserMapper userMapper;
+
+    public List<UserDTO> getUser(){
+        List<UserEntity> userEntities =  userMapper.selectAll();
+        return userEntities.stream().map(userEntity -> {
+            UserDTO userDTO = new UserDTO();
+            BeanUtils.copyProperties(userEntity,userDTO);
+            return userDTO;
+        }).collect(Collectors.toList());
+    }
+
+    public List<SelectOption> userOptions() {
+        return userMapper.selectAll().stream()
+                .map(entity -> new SelectOption(entity.getId().toString(),entity.getUserName()))
+                .collect(Collectors.toList());
+    }
 
     public ContextUser getUserByToken(String token) {
         UserEntity entity = userMapper.selectUserByToken(token);
@@ -87,4 +106,16 @@ public class UserService {
         entity.setUpdateTime(new Date());
         userMapper.updateByPrimaryKeySelective(entity);
     }
+
+    public UserDTO userDetail(Integer userId) {
+        UserEntity entity =  userMapper.selectByPrimaryKey(userId);
+        UserDTO userDTO = new UserDTO();
+        BeanUtils.copyProperties(entity,userDTO);
+        return userDTO;
+    }
+
+    public void deleteUser(Integer userId) {
+        userMapper.deleteByPrimaryKey(userId);
+    }
+
 }

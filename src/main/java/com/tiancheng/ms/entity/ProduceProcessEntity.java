@@ -18,6 +18,12 @@ public class ProduceProcessEntity {
     @Column(name = "produce_id")
     private Integer produceId;
 
+    @Column(name = "product_id")
+    private Integer productId;
+
+    @Column(name = "produce_product_id")
+    private Integer produceProductId;
+
     @Column(name = "process_id")
     private Integer processId;
 

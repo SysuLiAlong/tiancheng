@@ -18,6 +18,9 @@ public class ProduceMsgEntity {
     @Column(name = "produce_id")
     private Integer produceId;
 
+    @Column(name = "product_id")
+    private Integer productId;
+
     @Column(name = "content")
     private String content;
 

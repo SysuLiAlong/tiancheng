@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.tiancheng.ms.dao.mapper.ProduceProductMapper">
+    <resultMap id="BaseResultMap" type="com.tiancheng.ms.entity.ProduceProductEntity">
+        <!-- generate by mybatis-generator-zy, don't modify -->
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="produce_id" property="produceId" jdbcType="INTEGER"/>
+        <result column="product_id" property="productId" jdbcType="INTEGER"/>
+        <result column="mount" property="mount" jdbcType="INTEGER"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="create_by" property="createBy" jdbcType="VARCHAR"/>
+        <result column="update_by" property="updateBy" jdbcType="VARCHAR"/>
+
+    </resultMap>
+    <select id="getProductsByProduceId" resultType="com.tiancheng.ms.dto.ProduceProductDTO">
+        select p1.id as id, p1,produce_id as produceId, p1.product_id as product_id,
+        p1.mount as mount, p2.name as productName, p2.code as productCode, p3.charge_user_name as chargeUserName, p3.process_name as currentProcess
+        from produce_product p1
+        left join product p2 on p1.product_id = p2.id
+        left join produce_process p3 on p1.id = p3.produce_product_id
+        where p1.produce_id = #{produceId}
+    </select>
+    <select id="queryProduceProduct" resultType="com.tiancheng.ms.dto.ProduceProductDetailDTO">
+        select p1.id as id, p1,produce_id as produceId, p1.product_id as product_id,
+        p1.mount as mount, p2.name as productName, p3.charge_user_name as chargeUserName, p3.process_name as currentProcess,
+        p2.code as code, p2.nums_per_stove as numsPerStove, p2.alert_percent as alertPercent,
+        p2.weight as weight, p2.image_code as imageCode, p2.description as description
+        from produce_product p1
+        left join product p2 on p1.product_id = p2.id
+        left join produce_process p3 on p1.id = p3.produce_product_id
+        where p1.id = #{produceProductId}
+    </select>
+    <select id="getUnoverProducesByProductId" resultType="com.tiancheng.ms.entity.ProduceProductEntity">
+        select *
+        from produce_product p1
+        left join produce p2 on p1.product_id = p2.id
+        where p1.product_id = #{productId} and p2.status = 1
+    </select>
+
+</mapper>
