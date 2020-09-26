@@ -11,6 +11,7 @@ import java.util.Date;
 @Table(name = "produce")
 public class ProduceEntity {
 
+    @Transient
     private Integer PRODUCE_COMPLETE_STATUS = 0;
 
     @Id

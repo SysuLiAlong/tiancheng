@@ -15,10 +15,20 @@
 
     </resultMap>
 
-    <resultMap id="DetailResultMap" type="com.tiancheng.ms.dto.AlarmDTO" extends="BaseResultMap">
-        <result column="produceCode" property="produceCode" jdbcType="VARCHAR"/>
-        <result column="productCode" property="produceCode" jdbcType="VARCHAR"/>
-        <result column="processName" property="processName" jdbcType="VARCHAR"/>
-    </resultMap>
+
+    <select id="listAlarm" resultType="com.tiancheng.ms.dto.AlarmDTO">
+        select p1.code as produceCode, p2.name as productName, p3.name as processName,
+        a.create_time as createTime, a.type as type, a.content as content
+        from alarm a
+        left join produce p1 on p1.id = a.produce_id
+        left join product p2 on p2.id = a.product_id
+        left join process p3 on p3.id = a.process_id
+        <where>
+            p1.create_by = #{currentUser}
+            and DATE_SUB(CURDATE(), INTERVAL 30 DAY) &lt; a.create_time
+            <if test="type != null">and type = #{type}</if>
+        </where>
+        order by a.create_time desc
+    </select>
 
 </mapper>

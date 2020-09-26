@@ -15,6 +15,7 @@ import com.tiancheng.ms.dto.param.*;
 import com.tiancheng.ms.entity.*;
 import com.tiancheng.ms.util.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -52,6 +53,13 @@ public class ProduceService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private AlarmService alarmService;
+
+
+    @Value("${file.downLoadPath}")
+    private String downLoadPath;
 
     public Page<ProduceDTO> pageQryProduceForAdmin(ProduceQueryParam queryParam) {
         PageHelper.startPage(queryParam.getPageNo(),queryParam.getPageSize());
@@ -100,20 +108,24 @@ public class ProduceService {
             productEntity.setUpdateTime(new Date());
             productEntity.setProduceId(entity.getId());
             produceProductMapper.insert(productEntity);
-            List<ProcessEntity> processEntities = productMapper.getProcesses(productParam.getProduceId());
+            List<ProcessEntity> processEntities = productMapper.getProcesses(productParam.getProductId());
             if (CollectionUtils.isEmpty(processEntities)) {
                 continue;
             }
 
             List<ProduceProcessEntity> produceProcessEntities = new ArrayList<>(processEntities.size());
-            Integer nextProcess = produceProcessConstant.getEndId();
             //添加“结束”流程
             ProduceProcessEntity endProcess = new ProduceProcessEntity();
             endProcess.setProduceId(entity.getId());
             endProcess.setProcessId(produceProcessConstant.getEndId());
             endProcess.setProcessName(produceProcessConstant.getEndName());
             endProcess.setChargeUserName(produceProcessConstant.getUserName());
+            endProcess.setStatus(ProduceProcessStatusConstant.INIT_STATUS);
+            endProcess.setProduceProductId(productEntity.getId());
+            endProcess.setProductId(productParam.getProductId());
             produceProcessEntities.add(endProcess);
+            ProduceProcessEntity nextProcess = new ProduceProcessEntity();
+            BeanUtils.copy(endProcess, nextProcess);
             for (int i= 0;i < processEntities.size(); i++) {
                 ProcessEntity processEntity = processEntities.get(i);
                 ProduceProcessEntity produceProcessEntity = new ProduceProcessEntity();
@@ -121,9 +133,10 @@ public class ProduceService {
                 produceProcessEntity.setProduceId(entity.getId());
                 produceProcessEntity.setProcessName(processEntity.getName());
                 produceProcessEntity.setChargeUserName(processEntity.getChargeUserName());
-                produceProcessEntity.setNextProcess(nextProcess);
+                produceProcessEntity.setNextProcess(nextProcess.getProcessId());
                 produceProcessEntity.setProduceProductId(productEntity.getId());
-                nextProcess = processEntity.getId();
+                produceProcessEntity.setProductId(productParam.getProductId());
+                BeanUtils.copy(produceProcessEntity, nextProcess);
                 if (i == processEntities.size() - 1) {
                     produceProcessEntity.setStatus(ProduceProcessStatusConstant.ARRIVE_STATUS);
                 } else {
@@ -138,12 +151,17 @@ public class ProduceService {
             startProcess.setStatus(ProduceProcessStatusConstant.END_STATUS);
             startProcess.setProcessName(produceProcessConstant.getStartName());
             startProcess.setChargeUserName(produceProcessConstant.getUserName());
-            startProcess.setNextProcess(nextProcess);
+            startProcess.setProduceProductId(productEntity.getId());
+            startProcess.setStartTime(new Date());
+            startProcess.setEndTime(new Date());
+            startProcess.setNextProcess(nextProcess.getProcessId());
+            nextProcess.setStartNum(productEntity.getMount());
+            startProcess.setStartNum(productEntity.getMount());
+            startProcess.setEndNum(productEntity.getMount());
+            startProcess.setProductId(productParam.getProductId());
             produceProcessEntities.add(startProcess);
             produceProcessMapper.insertList(produceProcessEntities);
         }
-
-
     }
 
     public void addProduceMsg(ProduceMsgParam param) {
@@ -153,6 +171,7 @@ public class ProduceService {
         entity.setUpdateTime(new Date());
         entity.setCreateBy(ContextHolder.getUser().getUserName());
         entity.setUpdateBy(ContextHolder.getUser().getUserName());
+        entity.setOperateUserName(ContextHolder.getUser().getUserName());
         produceMsgMapper.insert(entity);
     }
 
@@ -193,6 +212,15 @@ public class ProduceService {
                             .replace("{username}",createBy)
                             .replace("{process}",processName)
                     );
+                    break;
+                }
+                case 5: {
+                    // TODO: 2020/9/26 将链接转成link
+                    entity.setContent(MessageConstant.UPLOAD_IMAGE_MESSAGE
+                            .replace("{username}",createBy)
+                            .replace("{filePath}",downLoadPath +entity.getFilePath())
+                    );
+                    break;
                 }
                 default: entity.setContent("消息异常");
             }
@@ -214,7 +242,7 @@ public class ProduceService {
         produceProcessEntity.setStatus(ProduceProcessStatusConstant.ACCEPT_STATUS);
         produceProcessMapper.updateByPrimaryKey(produceProcessEntity);
 
-        ProduceProcessEntity nextProcess = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getNextProcess());
+        ProduceProcessEntity nextProcess = produceProcessMapper.getNextProcess(param.getProduceProcessParam().getId());
         nextProcess.setStatus(ProduceProcessStatusConstant.START_STATUS);
         nextProcess.setStartTime(new Date());
         nextProcess.setStartNum(produceProcessEntity.getEndNum());
@@ -230,8 +258,10 @@ public class ProduceService {
         produceProcessEntity.setEndTime(null);
         produceProcessMapper.updateByPrimaryKey(produceProcessEntity);
 
-        ProduceProcessEntity nextProcess = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getNextProcess());
+        ProduceProcessEntity nextProcess = produceProcessMapper.getNextProcess(param.getProduceProcessParam().getId());
         nextProcess.setStatus(ProduceProcessStatusConstant.INIT_STATUS);
+        nextProcess.setStartNum(null);
+        nextProcess.setStartTime(null);
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
         addProduceMsg(param.getProduceMsgParam());
@@ -266,13 +296,28 @@ public class ProduceService {
         ProduceProcessEntity produceProcessEntity = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getId());
         produceProcessEntity.setStatus(ProduceProcessStatusConstant.END_STATUS);
         produceProcessEntity.setEndTime(new Date());
+        produceProcessEntity.setEndNum(param.getProduceProcessParam().getEndNum());
         produceProcessMapper.updateByPrimaryKey(produceProcessEntity);
 
-        ProduceProcessEntity nextProcess = produceProcessMapper.selectByPrimaryKey(param.getProduceProcessParam().getNextProcess());
+        ProduceProcessEntity nextProcess = produceProcessMapper.getNextProcess(param.getProduceProcessParam().getId());
         nextProcess.setStatus(ProduceProcessStatusConstant.ARRIVE_STATUS);
+        nextProcess.setStartNum(param.getProduceProcessParam().getEndNum());
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
         addProduceMsg(param.getProduceMsgParam());
+
+        ProductEntity productEntity = productMapper.selectByPrimaryKey(produceProcessEntity.getProductId());
+        ProduceProductEntity produceProductEntity = produceProductMapper.selectByPrimaryKey(produceProcessEntity.getProduceProductId());
+        if (produceProductEntity.getMount() * productEntity.getAlertPercent() < produceProcessEntity.getEndNum()) {
+            AlarmParam alarmParam = new AlarmParam();
+            alarmParam.setProcessId(produceProcessEntity.getProcessId());
+            alarmParam.setProductId(productEntity.getId());
+            alarmParam.setProduceId(produceProductEntity.getProduceId());
+            alarmParam.setProduceProductId(produceProductEntity.getId());
+            alarmParam.setType(AlarmParam.FAULT_RATE_ALARM);
+            alarmService.addAlarm(alarmParam);
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)

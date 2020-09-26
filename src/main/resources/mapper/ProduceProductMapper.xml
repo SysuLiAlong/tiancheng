@@ -14,22 +14,22 @@
 
     </resultMap>
     <select id="getProductsByProduceId" resultType="com.tiancheng.ms.dto.ProduceProductDTO">
-        select p1.id as id, p1,produce_id as produceId, p1.product_id as product_id,
+        select p1.id as id, p1.produce_id as produceId, p1.product_id as product_id,
         p1.mount as mount, p2.name as productName, p2.code as productCode, p3.charge_user_name as chargeUserName, p3.process_name as currentProcess
         from produce_product p1
         left join product p2 on p1.product_id = p2.id
         left join produce_process p3 on p1.id = p3.produce_product_id
-        where p1.produce_id = #{produceId}
+        where p1.produce_id = #{produceId} and p3.status in (1,2)
     </select>
     <select id="queryProduceProduct" resultType="com.tiancheng.ms.dto.ProduceProductDetailDTO">
-        select p1.id as id, p1,produce_id as produceId, p1.product_id as product_id,
+        select p1.id as id, p1.produce_id as produceId, p1.product_id as product_id, p1.create_by as createBy,
         p1.mount as mount, p2.name as productName, p3.charge_user_name as chargeUserName, p3.process_name as currentProcess,
         p2.code as code, p2.nums_per_stove as numsPerStove, p2.alert_percent as alertPercent,
         p2.weight as weight, p2.image_code as imageCode, p2.description as description
         from produce_product p1
         left join product p2 on p1.product_id = p2.id
         left join produce_process p3 on p1.id = p3.produce_product_id
-        where p1.id = #{produceProductId}
+        where p1.id = #{produceProductId} and p3.status in (1,2)
     </select>
     <select id="getUnoverProducesByProductId" resultType="com.tiancheng.ms.entity.ProduceProductEntity">
         select *

@@ -5,6 +5,7 @@ import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.dto.PageRequestWrapper;
 import com.tiancheng.ms.common.dto.SelectOption;
 import com.tiancheng.ms.common.enums.DeleteTypeEnum;
+import com.tiancheng.ms.dto.ProductDTO;
 import com.tiancheng.ms.dto.ProductDetailDTO;
 import com.tiancheng.ms.dto.param.ProductDetailParam;
 import com.tiancheng.ms.dto.param.ProductQueryParam;
@@ -40,6 +41,11 @@ public class ProductController {
     @GetMapping("{productId}")
     public ProductDetailDTO detailProduct(@PathVariable Integer productId) {
         return productService.detail(productId);
+    }
+
+    @GetMapping("/code")
+    public ProductDTO queryByCode(@RequestParam("code") String code) {
+        return productService.queryByCode(code);
     }
 
     @DeleteType(value = DeleteTypeEnum.PRODUCT, id = "id")

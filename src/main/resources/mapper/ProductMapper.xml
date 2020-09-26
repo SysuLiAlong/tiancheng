@@ -28,5 +28,10 @@
             </if>
         </where>
     </select>
+    <select id="getProcesses" resultType="com.tiancheng.ms.entity.ProcessEntity">
+        select p2.* from product_process p1
+        left join process p2 on p1.process_id = p2.id
+        where p1.product_id = #{productId}
+    </select>
 
 </mapper>

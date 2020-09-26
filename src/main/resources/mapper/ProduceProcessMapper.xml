@@ -24,7 +24,7 @@
         p.start_time as startTime, p.end_time as endTime, p.start_num as startNum,
         p.end_num as endNum, p.charge_user_name as chargeUserName, p.process_name as processName
         from produce_process p
-        where p.produce_product_id = #{produceProductId}
+        where p.produce_product_id = #{produceProductId} order by p.id desc
     </select>
     <select id="getNextProcess" resultMap="BaseResultMap">
         select p2.* from

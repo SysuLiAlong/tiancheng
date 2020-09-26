@@ -30,4 +30,5 @@ role:
 
 file:
   path: D://tiancheng/image/
+  downLoadPath: http://192.168.101.12:8000/file/image/download/
 

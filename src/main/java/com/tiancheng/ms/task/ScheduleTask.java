@@ -12,6 +12,7 @@ public class ScheduleTask {
     //3.添加定时任务
     @Scheduled(cron = "0 0 0/1 * * ?")
     private void produceRuleTask() {
+
     }
 
 

@@ -36,5 +36,9 @@ public class AlarmEntity {
     @Column(name = "update_by")
     private String updateBy;
 
+    private String content;
+
+    @Column(name = "produce_product_id")
+    private Integer produceProductId;
 
 }

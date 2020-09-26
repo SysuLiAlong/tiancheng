@@ -10,6 +10,7 @@ import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.ExampleConstant;
 import com.tiancheng.ms.dao.mapper.*;
+import com.tiancheng.ms.dto.ProductDTO;
 import com.tiancheng.ms.dto.ProductDetailDTO;
 import com.tiancheng.ms.dto.param.ProductDetailParam;
 import com.tiancheng.ms.dto.param.ProductParam;
@@ -171,5 +172,13 @@ public class ProductService {
         return productMapper.selectAll().stream()
                 .map(productEntity -> new SelectOption(productEntity.getCode(),productEntity.getName()))
                 .collect(Collectors.toList());
+    }
+
+    public ProductDTO queryByCode(String code) {
+        ProductEntity entity = productMapper.queryByCode(code);
+        if (entity == null) {
+            throw new BusinessException(ErrorCode.FAIL, "产品编码不存在");
+        }
+        return com.tiancheng.ms.util.BeanUtils.copy(entity, ProductDTO.class);
     }
 }

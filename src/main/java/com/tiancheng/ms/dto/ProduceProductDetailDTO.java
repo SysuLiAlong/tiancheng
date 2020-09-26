@@ -31,4 +31,6 @@ public class ProduceProductDetailDTO {
 
     private String description;
 
+    private String createBy;
+
 }

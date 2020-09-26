@@ -15,6 +15,9 @@ public interface ProductMapper extends Mapper<ProductEntity> {
 
     List<ProductEntity> queryByParam(@Param("queryParam") ProductQueryParam queryParam);
 
-    @Select("select * from product_process where product_id = #{productId}")
     List<ProcessEntity> getProcesses(@Param("productId") Integer productId);
+
+
+    @Select("select * from product where code = #{code}")
+    ProductEntity queryByCode(@Param("code") String code);
 }
