@@ -217,9 +217,7 @@ public class ProduceService {
                 case 5: {
                     // TODO: 2020/9/26 将链接转成link
                     entity.setContent(MessageConstant.UPLOAD_IMAGE_MESSAGE
-                            .replace("{username}",createBy)
-                            .replace("{filePath}",downLoadPath +entity.getFilePath())
-                    );
+                            .replace("{username}",createBy));
                     break;
                 }
                 default: entity.setContent("消息异常");
