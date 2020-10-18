@@ -5,7 +5,10 @@ import com.github.pagehelper.PageInfo;
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.exception.BusinessException;
-import com.tiancheng.ms.constant.*;
+import com.tiancheng.ms.constant.ErrorCode;
+import com.tiancheng.ms.constant.MessageConstant;
+import com.tiancheng.ms.constant.ProduceProcessConstant;
+import com.tiancheng.ms.constant.ProduceProcessStatusConstant;
 import com.tiancheng.ms.dao.mapper.*;
 import com.tiancheng.ms.dto.ProduceDTO;
 import com.tiancheng.ms.dto.ProduceProcessDTO;
@@ -46,9 +49,6 @@ public class ProduceService {
     private ProcessMapper processMapper;
 
     @Autowired
-    private UserRoleConstant userRoleConstant;
-
-    @Autowired
     private ProduceProcessConstant produceProcessConstant;
 
     @Autowired
@@ -56,7 +56,6 @@ public class ProduceService {
 
     @Autowired
     private AlarmService alarmService;
-
 
     @Value("${file.downLoadPath}")
     private String downLoadPath;
@@ -218,6 +217,7 @@ public class ProduceService {
                     // TODO: 2020/9/26 将链接转成link
                     entity.setContent(MessageConstant.UPLOAD_IMAGE_MESSAGE
                             .replace("{username}",createBy));
+                    entity.setFilePath(downLoadPath.replace("{imageName}", entity.getFilePath()));
                     break;
                 }
                 default: entity.setContent("消息异常");
@@ -318,11 +318,17 @@ public class ProduceService {
 
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    public void deleteProduce(Integer produceId) {
-        produceMapper.deleteByPrimaryKey(produceId);
-        produceProcessMapper.deleteByProduceId(produceId);
-        produceMsgMapper.deleteByProduceId(produceId);
+    public void deleteProduce(Integer produceId, String comment) {
+        ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(produceId);
+        if (produceEntity == null || !produceEntity.getEnabled()) {
+            throw new BusinessException(ErrorCode.FAIL, "删除的生产计划不存在，或者已被删除！");
+        }
+        if (StringUtils.isEmpty(comment)) {
+            throw new BusinessException(ErrorCode.FAIL, "删除原因不能为空！");
+        }
+        produceEntity.setEnabled(false);
+        produceEntity.setComment(comment);
+        produceMapper.updateByPrimaryKey(produceEntity);
     }
 
     public List<ProduceProductDTO> listProduceProduct(Integer produceId) {

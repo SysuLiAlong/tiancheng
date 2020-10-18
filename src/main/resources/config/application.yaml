@@ -39,3 +39,6 @@ pagehelper:
   reasonable: false
   supportMethodsArguments: true
 
+api:
+  ignoreApis: ["/file/image/download"]
+

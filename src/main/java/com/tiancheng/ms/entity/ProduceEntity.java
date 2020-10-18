@@ -12,7 +12,7 @@ import java.util.Date;
 public class ProduceEntity {
 
     @Transient
-    private Integer PRODUCE_COMPLETE_STATUS = 0;
+    public static Integer PRODUCE_COMPLETE_STATUS = 0;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -38,5 +38,9 @@ public class ProduceEntity {
     private Integer status = PRODUCE_COMPLETE_STATUS;
 
     private String description;
+
+    private Boolean enabled = true;
+
+    private String comment;
 
 }

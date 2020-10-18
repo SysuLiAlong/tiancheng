@@ -114,7 +114,7 @@ public class ProductService {
     @Transactional(rollbackFor = Exception.class)
     public void updateProduct(ProductDetailParam detailParam) {
         ProductEntity productEntity = productMapper.selectOneByCode(detailParam.getProductParam().getCode());
-        if (productEntity != null && productEntity.getId() != detailParam.getProductParam().getId()) {
+        if (productEntity != null && !productEntity.getId().equals(detailParam.getProductParam().getId())) {
             throw new BusinessException(ErrorCode.FAIL, "产品编码重复");
         }
         productEntity = productMapper.selectByPrimaryKey(detailParam.getProductParam().getId());

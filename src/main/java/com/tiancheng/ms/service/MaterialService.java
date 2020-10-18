@@ -97,7 +97,7 @@ public class MaterialService {
         PageHelper.startPage(queryParam.getPageNo(),queryParam.getPageSize());
         List<MaterialEntity> entities = materialMapper.selectByExample(example);
         List<MaterialDTO> dtos = BeanUtils.copy(entities, MaterialDTO.class);
-        PageInfo pageInfo = new PageInfo(dtos);
+        PageInfo pageInfo = new PageInfo(entities);
         return new Page<>(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), dtos);
 
     }

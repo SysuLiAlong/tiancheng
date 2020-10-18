@@ -15,4 +15,8 @@ public class ProduceDTO {
 
     private String description;
 
+    private Integer enabled;
+
+    private String comment;
+
 }

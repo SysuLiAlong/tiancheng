@@ -103,8 +103,8 @@ public class ProduceController {
 
     @DeleteType(value = DeleteTypeEnum.PRODUCE, id = "id")
     @PostMapping("/delete/{id}")
-    public void deleteProduce(@PathVariable Integer id) {
-        produceService.deleteProduce(id);
+    public void deleteProduce(@PathVariable Integer id, @RequestParam("comment") String comment) {
+        produceService.deleteProduce(id, comment);
     }
 
 }

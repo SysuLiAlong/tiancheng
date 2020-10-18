@@ -15,4 +15,20 @@
         where product_id = #{productId}
     </select>
 
+    <select id="queryOverTimeAlarmDTO" resultType="com.tiancheng.ms.dto.OverTimeAlarmDTO">
+        select
+        p1.produce_id as produceId, p1.product_id as productId, p1.process_id as processId,
+        p4.code as produce_code, p2.code as product_code,
+        p3.name as processName, p1.start_time as startTime,
+        r.intervals as intervals
+        from produce_process p1
+        left join product p2 on p1.product_id = p2.id
+        left join process p3 on p1.process_id = p3.id
+        left join rules r on r.product_id = p2.id and r.process_id = p3.id
+        left join produce p4 on p1.produce_id = p4.id
+        where
+        DATE_ADD(P1.start_time,INTERVAL r.intervals DAY) > now()
+        and p1.status = 2;
+    </select>
+
 </mapper>

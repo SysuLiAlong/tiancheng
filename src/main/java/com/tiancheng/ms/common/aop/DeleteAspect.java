@@ -1,10 +1,11 @@
 package com.tiancheng.ms.common.aop;
 
 
+import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.exception.BusinessException;
 import com.tiancheng.ms.constant.ErrorCode;
 import com.tiancheng.ms.constant.ProduceProcessConstant;
-import com.tiancheng.ms.constant.ProduceProcessStatusConstant;
+import com.tiancheng.ms.constant.UserRoleConstant;
 import com.tiancheng.ms.dao.mapper.*;
 import com.tiancheng.ms.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +57,9 @@ public class DeleteAspect {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private UserRoleConstant userRoleConstant;
 
 
     @Pointcut("@annotation(com.tiancheng.ms.common.aop.DeleteType)")
@@ -121,19 +125,10 @@ public class DeleteAspect {
         if (entity == null) {
             throw new BusinessException(ErrorCode.FAIL,"删除产品不存在！");
         }
-        ProduceProcessEntity endProduceProcess = produceProcessMapper.selectEndProduceProcess(produceId,produceProcessConstant.getEndId());
-        if (endProduceProcess == null) {
-            throw new BusinessException(ErrorCode.FAIL,"数据异常，生产计划没有终止流程！");
-        }
-        if (endProduceProcess.getStatus() == ProduceProcessStatusConstant.INIT_STATUS) {
-            throw new BusinessException(ErrorCode.FAIL,"删除的生产计划【" + entity.getCode() + "】尚未结束");
-        }
-        ProduceProcessEntity startProduceProcess = produceProcessMapper.selectStartProduceProcess(produceId,produceProcessConstant.getStartId());
-        if (startProduceProcess == null) {
-            throw new BusinessException(ErrorCode.FAIL,"数据异常，生产计划没有开始流程！");
-        }
-        if (startProduceProcess.getStatus() != ProduceProcessStatusConstant.ARRIVE_STATUS) {
-            throw new BusinessException(ErrorCode.FAIL,"删除的生产计划【" + entity.getCode() + "】已经开始");
+        boolean isComplete = ProduceEntity.PRODUCE_COMPLETE_STATUS.equals(entity.getStatus());
+        boolean isSuperAdmin = userRoleConstant.getSuperAdmin().equals(ContextHolder.getUser().getRole());
+        if (!isComplete && !isSuperAdmin) {
+            throw new BusinessException(ErrorCode.FAIL, "超级管理员才能删除未完成的任务！");
         }
         return;
     }

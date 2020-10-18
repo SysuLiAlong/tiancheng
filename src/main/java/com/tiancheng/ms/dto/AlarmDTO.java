@@ -7,7 +7,7 @@ import java.util.Date;
 @Data
 public class AlarmDTO {
 
-    public static String OVER_TIME_CONTENT_TMPL = "{produceCode}中： {productName}在【{processName}】流程超时";
+    public static String OVER_TIME_CONTENT_TMPL = "{produceCode}中： {productName}在【{processName}】流程超时, 超时限制为{interval}天，开始时间为{startTime}";
 
     public static String FAULT_RATE_CONTENT_TMPL = "{produceCode}中： {productName}次品率超过限制";
 

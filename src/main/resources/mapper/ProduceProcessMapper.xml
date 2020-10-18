@@ -31,7 +31,7 @@
         produce_process p1
         join produce_process p2
         on p1.next_process = p2.process_id
-        where p1.id = #{produceProcessId}
+        where p1.id = #{produceProcessId} and p2.produce_product_id = p1.produce_product_id
     </select>
 
     <select id="selectUnOverProduceContainProcessId" resultType="com.tiancheng.ms.dto.ProduceProcessDTO">
