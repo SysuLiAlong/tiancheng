@@ -5,10 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.tiancheng.ms.common.context.ContextHolder;
 import com.tiancheng.ms.common.dto.Page;
 import com.tiancheng.ms.common.exception.BusinessException;
-import com.tiancheng.ms.constant.ErrorCode;
-import com.tiancheng.ms.constant.MessageConstant;
-import com.tiancheng.ms.constant.ProduceProcessConstant;
-import com.tiancheng.ms.constant.ProduceProcessStatusConstant;
+import com.tiancheng.ms.constant.*;
 import com.tiancheng.ms.dao.mapper.*;
 import com.tiancheng.ms.dto.ProduceDTO;
 import com.tiancheng.ms.dto.ProduceProcessDTO;
@@ -57,6 +54,9 @@ public class ProduceService {
     @Autowired
     private AlarmService alarmService;
 
+    @Autowired
+    UserRoleConstant userRoleConstant;
+
     @Value("${file.downLoadPath}")
     private String downLoadPath;
 
@@ -77,10 +77,19 @@ public class ProduceService {
         }).collect(Collectors.toList());
         List<ProduceDTO> dtos = BeanUtils.copy(filterProduces, ProduceDTO.class);
         // 手动分页
-        Integer beginIndex = queryParam.getPageNo() * queryParam.getPageSize();
+        Integer beginIndex = queryParam.getPageNo() * queryParam.getPageSize() - queryParam.getPageSize();
         Integer endIndex = beginIndex + queryParam.getPageSize() <= filterProduces.size() ? beginIndex + queryParam.getPageSize() : filterProduces.size();
         List<ProduceDTO> pagedDtos = dtos.subList(beginIndex, endIndex);
         return new Page<>(queryParam.getPageNo(), queryParam.getPageSize(), (long) dtos.size(), pagedDtos);
+    }
+
+    public ProduceDTO queryProduceInfo(Integer produceId) {
+        ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(produceId);
+        if (produceEntity == null) {
+            throw new BusinessException(ErrorCode.FAIL, "查询生产计划失败！");
+        }
+        ProduceDTO produceDTO = new ProduceDTO();
+        return BeanUtils.copy(produceEntity, produceDTO);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -302,6 +311,25 @@ public class ProduceService {
         nextProcess.setStartNum(param.getProduceProcessParam().getEndNum());
         produceProcessMapper.updateByPrimaryKey(nextProcess);
 
+        // 如果下一流程是end流程，需要检查下整个生产计划是否结束
+        if (nextProcess.getProcessId().equals(produceProcessConstant.getEndId())) {
+            List<ProduceProcessEntity> produceProcessEntities =
+                    produceProcessMapper.queryUnOverProduceProcessByProduceId(nextProcess.getProduceId());
+            boolean isAllProductComplete = true;
+            for (ProduceProcessEntity produceProcessEntity1 : produceProcessEntities) {
+                if (!produceProcessEntity1.getProcessId().equals(produceProcessConstant.getEndId())) {
+                    isAllProductComplete = false;
+                    break;
+                }
+            }
+            if (isAllProductComplete) {
+                ProduceEntity produceEntity = produceMapper.selectByPrimaryKey(nextProcess.getProduceId());
+                produceEntity.setStatus(ProduceEntity.PRODUCE_COMPLETE_STATUS);
+                produceEntity.setUpdateTime(new Date());
+                produceMapper.updateByPrimaryKey(produceEntity);
+            }
+        }
+
         addProduceMsg(param.getProduceMsgParam());
 
         ProductEntity productEntity = productMapper.selectByPrimaryKey(produceProcessEntity.getProductId());
@@ -332,7 +360,13 @@ public class ProduceService {
     }
 
     public List<ProduceProductDTO> listProduceProduct(Integer produceId) {
-        return produceProductMapper.getProductsByProduceId(produceId);
+        String currentUserRole = ContextHolder.getUser().getRole();
+        String currentUserName = ContextHolder.getUser().getUserName();
+        if (userRoleConstant.commonUser.equals(currentUserRole)) {
+            return produceProductMapper.getProductsByProduceId(produceId, currentUserName);
+        } else {
+            return produceProductMapper.getProductsByProduceId(produceId, null);
+        }
     }
 
     private String generiateProduceCode() {

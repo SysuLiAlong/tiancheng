@@ -20,6 +20,9 @@
         left join product p2 on p1.product_id = p2.id
         left join produce_process p3 on p1.id = p3.produce_product_id
         where p1.produce_id = #{produceId} and p3.status in (1,2)
+        <if test="userName != null and userName != ''">
+            and p3.charge_user_name = #{userName}
+        </if>
     </select>
     <select id="queryProduceProduct" resultType="com.tiancheng.ms.dto.ProduceProductDetailDTO">
         select p1.id as id, p1.produce_id as produceId, p1.product_id as product_id, p1.create_by as createBy,

@@ -43,6 +43,9 @@ public interface ProduceProcessMapper extends Mapper<ProduceProcessEntity> , MyS
     ProduceProcessEntity selectStartProduceProcess(@Param("produceProductId") Integer produceProductId,@Param("startProcessId") Integer startProcessId);
 
     // 流程负责人不是admin这种系统用户，说明produce还未结束
-    @Select("select produce_id from produce_process where charge_user_name = #{chargeUserName}")
+    @Select("select produce_id from produce_process where charge_user_name = #{chargeUserName} and status in (1,2)")
     List<Integer> queryUnOverProduceIdsByChargeUserName(@Param("chargeUserName") String chargeUserName);
+
+    @Select("select * from produce_process where produce_id = #{produceId} and status in (1,2)")
+    List<ProduceProcessEntity> queryUnOverProduceProcessByProduceId(@Param("produceId") Integer produceId);
 }

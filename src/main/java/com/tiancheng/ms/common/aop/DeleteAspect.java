@@ -125,7 +125,7 @@ public class DeleteAspect {
         if (entity == null) {
             throw new BusinessException(ErrorCode.FAIL,"删除产品不存在！");
         }
-        boolean isComplete = ProduceEntity.PRODUCE_COMPLETE_STATUS.equals(entity.getStatus());
+        boolean isComplete = ProduceEntity.PRODUCE_DIS_COMPLETE_STATUS.equals(entity.getStatus());
         boolean isSuperAdmin = userRoleConstant.getSuperAdmin().equals(ContextHolder.getUser().getRole());
         if (!isComplete && !isSuperAdmin) {
             throw new BusinessException(ErrorCode.FAIL, "超级管理员才能删除未完成的任务！");

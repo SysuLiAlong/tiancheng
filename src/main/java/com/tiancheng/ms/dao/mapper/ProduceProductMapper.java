@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ProduceProductMapper extends Mapper<ProduceProductEntity>  {
 
-    List<ProduceProductDTO> getProductsByProduceId(@Param("produceId") Integer produceId);
+    List<ProduceProductDTO> getProductsByProduceId(@Param("produceId") Integer produceId, @Param("userName") String userName);
 
     ProduceProductDetailDTO queryProduceProduct(@Param("produceProductId") Integer produceProductId);
 

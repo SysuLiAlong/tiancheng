@@ -33,12 +33,17 @@ public class ProduceController {
 
     @PostMapping("/page_qry")
     public Page<ProduceDTO> pageQryProduce(@RequestBody ProduceQueryParam queryParam) {
-        String currentUserRole = ContextHolder.getUser().getRealName();
+        String currentUserRole = ContextHolder.getUser().getRole();
         if (userRoleConstant.commonUser.equals(currentUserRole)) {
             return produceService.pageQryProduceForCommonUser(queryParam);
         } else {
             return produceService.pageQryProduceForAdmin(queryParam);
         }
+    }
+
+    @GetMapping("/info/{produceId}")
+    public ProduceDTO queryProduceInfo(@PathVariable Integer produceId) {
+        return produceService.queryProduceInfo(produceId);
     }
 
     @GetMapping("/{produceId}")

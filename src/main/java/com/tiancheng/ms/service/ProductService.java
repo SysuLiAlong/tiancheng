@@ -177,7 +177,7 @@ public class ProductService {
     public ProductDTO queryByCode(String code) {
         ProductEntity entity = productMapper.queryByCode(code);
         if (entity == null) {
-            throw new BusinessException(ErrorCode.FAIL, "产品编码不存在");
+            throw new BusinessException(ErrorCode.FAIL, "产品编码【" + code + "】不存在");
         }
         return com.tiancheng.ms.util.BeanUtils.copy(entity, ProductDTO.class);
     }
