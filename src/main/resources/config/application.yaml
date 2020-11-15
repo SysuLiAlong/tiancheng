@@ -2,7 +2,7 @@ server:
   port: 8080
 spring:
   profiles:
-    active: prod
+    active: local
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
     name: dataSource

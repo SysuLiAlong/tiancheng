@@ -64,7 +64,7 @@ public class ProduceService {
         PageHelper.startPage(queryParam.getPageNo(),queryParam.getPageSize());
         List<ProduceEntity> entities = produceMapper.pageQryProduceForAdmin(queryParam.getOrderCode(), queryParam.getOrderParam());
         List<ProduceDTO> dtos = BeanUtils.copy(entities, ProduceDTO.class);
-        PageInfo pageInfo = new PageInfo(dtos);
+        PageInfo pageInfo = new PageInfo(entities);
         return new Page<>(pageInfo.getPageNum(), pageInfo.getPageSize(), pageInfo.getTotal(), dtos);
     }
 
