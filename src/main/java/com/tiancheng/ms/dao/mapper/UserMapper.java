@@ -19,4 +19,5 @@ public interface UserMapper extends Mapper<UserEntity> {
 
     @Update("update user set password = #{newPassword} where id = #{userId}")
     void resetPasswd(Integer userId, String newPassword);
+
 }
