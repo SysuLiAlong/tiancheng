@@ -1,4 +1,5 @@
 天城项目来自一位同学委托，帮自家企业建立的企业生产计划管理系统
+前端代码地址：https://github.com/SysuLiAlong/tc-front-new
 ##### 一、技术栈介绍
 后端：SpringBoot、Mybatis
 前端：Vue、Vant
