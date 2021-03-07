@@ -4,11 +4,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- * @author gongyi
- * Email; 76429197@qq.com
- * Date: 2020-02-18
- */
+
 public class CookieUtil {
     /**
      * 根据Cookie名称得到Cookie对象，不存在该对象则返回Null

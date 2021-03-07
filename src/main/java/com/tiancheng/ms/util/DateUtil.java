@@ -6,11 +6,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * 时间工具类
- * @author ding.shuai
- * @date 2017年6月10日上午11:31:59
- */
 public class DateUtil {
 
     /**

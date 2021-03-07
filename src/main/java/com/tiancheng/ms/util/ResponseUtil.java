@@ -7,13 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
-/**
- * response的工具类
- *
- * @author gongyi
- * Email; 76429197@qq.com
- * Date: 2018-10-24
- */
 @Slf4j
 @SuppressWarnings("all")
 public class ResponseUtil {
